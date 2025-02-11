@@ -19,10 +19,10 @@ def calculate_metrics(y_test, y_pred):
     return mae, mse, r2, mape, accuracy
 
 # โหลดโมเดลที่บันทึกไว้
-model_1 = joblib.load('../decision_tree_model.pkl')
-model_2 = joblib.load('../knn_model.pkl')
-model_3 = joblib.load('../svr_model.pkl')
-scaler = joblib.load('../scaler.pkl')
+model_1 = joblib.load('./decision_tree_model.pkl')
+model_2 = joblib.load('./knn_model.pkl')
+model_3 = joblib.load('./svr_model.pkl')
+scaler = joblib.load('./scaler.pkl')
 
 def display_ml_model():
     st.title("การทำนายราคาหุ้น")
