@@ -25,10 +25,10 @@ def local_css(file_name):
 # นำเข้าไฟล์ CSS
 local_css("styles.css")
 # โหลดโมเดลที่เทรนไว้
-model_1 = joblib.load('decision_tree_model.pkl')
-model_2 = joblib.load('knn_model.pkl')
-model_3 = joblib.load('svr_model.pkl')
-scaler = joblib.load('scaler.pkl')
+model_1 = joblib.load('./page/decision_tree_model.pkl')
+model_2 = joblib.load('./page/knn_model.pkl')
+model_3 = joblib.load('./page/svr_model.pkl')
+scaler = joblib.load('./page/scaler.pkl')
 #nn_model = joblib.load('neural_network_model.pkl')  # โมเดล Neural Network ที่เทรนแล้ว
 
 # เลือกหน้า (Home, ML Model, Neural Network Model, Demo Prediction)
