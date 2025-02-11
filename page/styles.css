@@ -1,0 +1,22 @@
+/* styles.css */
+.big-font {
+    font-size: 35px !important;
+    font-weight: bold;
+}
+
+.normal-text {
+    
+    font-size: 18px;
+   
+}
+.text_indent
+{
+    font-size: 18px;
+
+    text-indent: 30px;
+}
+.highlight {
+    font-size: 24px;
+  
+    font-weight: bold;
+}
