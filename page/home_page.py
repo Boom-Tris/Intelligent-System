@@ -26,12 +26,6 @@ def display_home():
     st.image("https://miro.medium.com/v2/resize:fit:2000/1*cuTSPlTq0a_327iTPJyD-Q.png", caption="https://medium.com/towards-data-science/the-mostly-complete-chart-of-neural-networks-explained-3fb6f2367464")
     
     #การประยุก
-<<<<<<< HEAD
     st.markdown('<div class="big-font">การนำมาประยุกต์ใช้ในการทำโปรเจค</div>', unsafe_allow_html=True)
     st.markdown('<div class="highlight">การทำนายราคาปิดของหุ้น SET ในประเทศไทย</div>', unsafe_allow_html=True)
     st.markdown('<div class="text_indent">โปรเจคนี้มุ่งเน้นการทำนายราคาหุ้นโดยใช้ข้อมูลดัชนีตลาดหุ้น เช่น ราคาปิด, ราคาสูงสุด, ราคาต่ำสุด, ปริมาณการซื้อขาย และค่าเฉลี่ยเคลื่อนที่ 50 และ 200 วัน ข้อมูลเหล่านี้จะถูกเตรียมและปรับขนาดเพื่อให้เหมาะสมกับการทำนาย โดยใช้โมเดล  K-Nearest Neighbors (KNN), Decision Tree (D3), Support Vector Regression (SVR) , และ Ensemble Method (Stacking) ผลลัพธ์จะถูกประเมินด้วยตัวชี้วัดทางสถิติเพื่อหาว่าโมเดลใดให้ผลลัพธ์ที่ดีที่สุดในการทำนายราคาหุ้น</div>', unsafe_allow_html=True)
-=======
-    st.markdown('<p class="big-font">การนำมาประยุกต์ใช้ในการทำโปรเจค</p>', unsafe_allow_html=True)
-    st.markdown('<p class="highlight">การทำนายราคาปิดของหุ้น SET ในประเทศไทย</p>', unsafe_allow_html=True)
-    st.markdown('<p class="text_indent">โปรเจคนี้มุ่งเน้นการทำนายราคาหุ้นโดยใช้ข้อมูลดัชนีตลาดหุ้น เช่น ราคาปิด, ราคาสูงสุด, ราคาต่ำสุด, ปริมาณการซื้อขาย และค่าเฉลี่ยเคลื่อนที่ 50 และ 200 วัน ข้อมูลเหล่านี้จะถูกเตรียมและปรับขนาดเพื่อให้เหมาะสมกับการทำนาย โดยใช้โมเดล  K-Nearest Neighbors (KNN), Decision Tree (D3), Support Vector Regression (SVR) , และ Ensemble Method (Stacking) ผลลัพธ์จะถูกประเมินด้วยตัวชี้วัดทางสถิติเพื่อหาว่าโมเดลใดให้ผลลัพธ์ที่ดีที่สุดในการทำนายราคาหุ้น</p>', unsafe_allow_html=True)
->>>>>>> 71b9ce1d04298b2917761d7312cbd177211cdc11
