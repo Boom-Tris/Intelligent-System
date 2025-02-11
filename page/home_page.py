@@ -6,7 +6,7 @@ import streamlit as st
 # ฟังก์ชันสำหรับหน้า Home
 def display_home():
     st.title("สวัสดีครับนี้คือ Final Project ในรายวิชา Intelligent System ")
-    st.markdown('<p class="highlight">โดย: ธีระพัฒน์ จ่อนตะมะ รหัสนักศึกษา 6604062620131</p>', unsafe_allow_html=True)
+    st.markdown('<div class="highlight">โดย: ธีระพัฒน์ จ่อนตะมะ รหัสนักศึกษา 6604062620131</div>', unsafe_allow_html=True)
     st.markdown('<p class="text_indent">ในโปรเจคนี้ เราจะนำเทคนิคการเรียนรู้ในเรื่อง Machine Learning หลายตัวที่สำคัญมาใช้ เช่น Decision Tree, K-Nearest Neighbors (KNN), Support Vector Regression (SVR), Ensemble Method (Stacking) ผลลัพธ์จะถูกประเมินด้วยตัวชี้วัดทางสถิติเพื่อหาว่าโมเดลใดให้ผลลัพธ์ที่ดีที่สุด และ Neural Networks โดยมีเป้าหมายในการนำโมเดลเหล่านี้มาประยุกต์ใช้ในการแก้ปัญหาจริงและเปรียบเทียบประสิทธิภาพของแต่ละโมเดล</p>', unsafe_allow_html=True)
     #โมเดลการเรียนรู้
     st.markdown('<p class="big-font"> โมเดลการเรียนรู้ </p>', unsafe_allow_html=True)
