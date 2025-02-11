@@ -11,10 +11,10 @@ from sklearn.neural_network import MLPRegressor  # ใช้สำหรับ N
 
 
 def display_demo_prediction():
-    model_1 = joblib.load('./decision_tree_model.pkl')
-    model_2 = joblib.load('./knn_model.pkl')
-    model_3 = joblib.load('./svr_model.pkl')
-    scaler = joblib.load('./scaler.pkl')
+    model_1 = joblib.load('../decision_tree_model.pkl')
+    model_2 = joblib.load('../knn_model.pkl')
+    model_3 = joblib.load('../svr_model.pkl')
+    scaler = joblib.load('../scaler.pkl')
     st.title("ทำนายราคาหุ้นด้วยข้อมูลที่ผู้ใช้กรอก")
 
     # กรอกข้อมูลการทำนาย
