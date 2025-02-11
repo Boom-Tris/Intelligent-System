@@ -8,7 +8,7 @@ def local_css(file_name):
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # โหลด CSS
-local_css("../styles.css")
+local_css("styles.css")
 # เลือกหน้า (Home, ML Model, Neural Network Model, Demo Prediction)
 page = st.sidebar.radio("เลือกหน้า", ("Home", "ML Model", "Neural Network Model", "Demo Prediction"))
 
