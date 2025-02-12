@@ -14,7 +14,7 @@ def local_css(file_name):
         st.error(f"CSS file not found: {file_path}")
 
 # โหลด CSS
-local_css("page/styles.css")  # ไม่ต้องใช้ "./" หรือ "../"
+local_css("styles.css")  # ไม่ต้องใช้ "./" หรือ "../"
 # เลือกหน้า (Home, ML Model, Neural Network Model, Demo Prediction)
 page = st.sidebar.radio("เลือกหน้า", ("Home", "ML Model", "Neural Network Model", "Demo Prediction"))
 

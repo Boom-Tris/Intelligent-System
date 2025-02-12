@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 def display_demo_prediction():
-    base_path = Path(__file__).parent
+    base_path = Path(__file__).parent.parent / "ML"
     model_1 = joblib.load(base_path / "decision_tree_model.pkl")
     model_2 = joblib.load(base_path / "knn_model.pkl")
     model_3 = joblib.load(base_path / "svr_model.pkl")
