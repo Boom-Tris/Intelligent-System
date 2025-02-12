@@ -43,7 +43,7 @@ def display_demo_prediction():
     input_data_scaled = pd.DataFrame(scaler.transform(input_data), columns=input_data.columns)
 
     # ใช้ st.selectbox แต่ซ่อน
-    model_choice = st.selectbox("เลือกโมเดลที่ใช้ในการทำนาย", ["Decision Tree", "KNN", "SVR", "Neural Network", "Ensemble"], key="model_select", label_visibility="collapsed")
+    model_choice = st.selectbox("เลือกโมเดลที่ใช้ในการทำนาย", ["Decision Tree", "KNN", "SVR", "Ensemble"], key="model_select", label_visibility="collapsed")
 
     # ทำนายด้วยโมเดลที่เลือก
     if model_choice == "Decision Tree":
