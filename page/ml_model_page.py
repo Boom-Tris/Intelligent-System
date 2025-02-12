@@ -7,7 +7,10 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor  # ใช้สำหรับ Neural Network Model
+from pathlib import Path
 
+# หาตำแหน่งโฟลเดอร์ที่ไฟล์ .pkl อยู่
+base_path = Path(__file__).parent
 
 # ฟังก์ชันคำนวณเมตริกต่าง ๆ
 def calculate_metrics(y_test, y_pred):
@@ -19,11 +22,10 @@ def calculate_metrics(y_test, y_pred):
     return mae, mse, r2, mape, accuracy
 
 # โหลดโมเดลที่บันทึกไว้
-model_1 = joblib.load('./decision_tree_model.pkl')
-model_2 = joblib.load('./knn_model.pkl')
-model_3 = joblib.load('./svr_model.pkl')
-scaler = joblib.load('./scaler.pkl')
-
+model_1 = joblib.load(base_path / "decision_tree_model.pkl")
+model_2 = joblib.load(base_path / "knn_model.pkl")
+model_3 = joblib.load(base_path / "svr_model.pkl")
+scaler = joblib.load(base_path / "scaler.pkl")
 def display_ml_model():
     st.title("การทำนายราคาหุ้น")
     

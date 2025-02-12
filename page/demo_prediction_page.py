@@ -7,14 +7,18 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor  # ใช้สำหรับ Neural Network Model
+from pathlib import Path
+
+# หาตำแหน่งโฟลเดอร์ที่ไฟล์ .pkl อยู่
 
 
 
 def display_demo_prediction():
-    model_1 = joblib.load('./decision_tree_model.pkl')
-    model_2 = joblib.load('./knn_model.pkl')
-    model_3 = joblib.load('./svr_model.pkl')
-    scaler = joblib.load('./scaler.pkl')
+    base_path = Path(__file__).parent
+    model_1 = joblib.load(base_path / "decision_tree_model.pkl")
+    model_2 = joblib.load(base_path / "knn_model.pkl")
+    model_3 = joblib.load(base_path / "svr_model.pkl")
+    scaler = joblib.load(base_path / "scaler.pkl")
     st.title("ทำนายราคาหุ้นด้วยข้อมูลที่ผู้ใช้กรอก")
 
     # กรอกข้อมูลการทำนาย
