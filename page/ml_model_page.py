@@ -30,7 +30,8 @@ def display_ml_model():
     model_2 = joblib.load(base_path / "knn_model.pkl")
     model_3 = joblib.load(base_path / "svr_model.pkl")
     scaler = joblib.load(base_path / "scaler.pkl")
-    file_path = Path(__file__).parent.parent / "data"
+    file_path =  Path(__file__).parent.parent / "data"
+
     file_csv =  file_path / "Thailand_Stock_Market_Data.csv"
     st.title("การทำนายราคาหุ้น")
    
