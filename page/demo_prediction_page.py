@@ -52,7 +52,7 @@ def display_demo_prediction():
         pred = model_2.predict(input_data_scaled)
     elif model_choice == "SVR":
         pred = model_3.predict(input_data_scaled)
-    elif model_choice == "Neural Network":
+    
         
         # คำนวณการทำนายโดยใช้ Ensemble (ค่าผลรวมของทุกโมเดล)
         pred_dt = model_1.predict(input_data_scaled)
