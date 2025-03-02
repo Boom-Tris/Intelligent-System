@@ -44,8 +44,15 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 def convert_webm_to_mp3(input_file, output_file):
-    # คำสั่ง ffmpeg ที่จะใช้แปลงไฟล์
-    command = ["ffmpeg", "-i", input_file, "-c:a", "libmp3lame", output_file]
+   
+    command = [
+        "ffmpeg",
+        "-v", "error",  # ลดข้อมูล log ที่แสดงออกมา
+        "-i", input_file,  # แหล่งไฟล์ที่ต้องการแปลง
+        "-acodec", "libmp3lame",  # ใช้ codec สำหรับ MP3
+        "-vn",  # ไม่เอาวิดีโอ
+        output_file
+    ]
     subprocess.run(command, check=True)
 
 st.title("WebM to MP3 Converter")
