@@ -42,30 +42,27 @@ model = load_model(model_path, compile=False)
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-        # ดาวน์โหลดเสียงจาก YouTube ด้วย pytube
+        # สร้างอ็อบเจ็กต์ YouTube
         yt = YouTube(url)
+        
+        # ดาวน์โหลดไฟล์เสียงในรูปแบบ mp4 และแปลงเป็น mp3
+        audio_stream = yt.streams.filter(only_audio=True).first()
+        temp_file_path = audio_stream.download(filename="temp_audio.mp4")
+        
+        # เปลี่ยนไฟล์จาก mp4 เป็น mp3
+        mp3_file_path = temp_file_path.replace(".mp4", ".mp3")
+        os.rename(temp_file_path, mp3_file_path)
 
-        # เลือกการดาวน์โหลดเสียงที่ดีที่สุด
-        stream = yt.streams.filter(only_audio=True).first()
-
-        # ตั้งชื่อไฟล์สำหรับดาวน์โหลด
-        temp_file = f"downloads/{yt.video_id}.mp4"
-        stream.download(output_path="downloads", filename=f"{yt.video_id}.mp4")
-
-        # เปลี่ยนชื่อไฟล์เป็น MP3
-        mp3_file = f"downloads/{yt.video_id}.mp3"
-        os.rename(temp_file, mp3_file)
-
-        if os.path.getsize(mp3_file) == 0:
+        # ตรวจสอบขนาดของไฟล์
+        if os.path.getsize(mp3_file_path) == 0:
+            os.remove(mp3_file_path)
             st.error("ไฟล์ที่ดาวน์โหลดมามีขนาดเป็น 0 ไบต์")
-            os.unlink(mp3_file)
             return None
-
-        return mp3_file
+        
+        return mp3_file_path
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
-
 # ฟังก์ชันหลัก
 def display_nn_model():
     st.title("แอปวิเคราะห์เสียง Speech และ Music")
