@@ -18,6 +18,11 @@ if not model_path.exists():
     os.makedirs(base_path, exist_ok=True)
     gdown.download(MODEL_URL, str(model_path), quiet=False)
 
+# กำหนดไฟล์เสียงที่ต้องการใช้
+file_path = Path(__file__).parent.parent / "data"
+file_speech = file_path / "Speech.wav"
+file_music = file_path / "COCKTAIL.wav"
+
 # ฟังก์ชันดึง features จากไฟล์เสียง
 def extract_features(audio_path):
     y, sr = librosa.load(audio_path, sr=16000)  # ลดตัวอย่างเสียงให้เร็วขึ้น
@@ -35,43 +40,39 @@ def display_nn_model():
     # ให้ผู้ใช้เลือกประเภทของเสียงก่อน
     audio_option = st.radio("เลือกประเภทเสียงที่ต้องการทดสอบ:", ["Speech", "Music", "เลือกไฟล์ของคุณเอง"], key="audio_option")
 
-    # ตัวแปรสำหรับเก็บไฟล์ที่อัพโหลด
+    # ถ้าเลือก Speech หรือ Music ให้แสดงตัวเลือกในการอัพโหลดไฟล์
     uploaded_file = None
-
     if audio_option == "Speech":
-        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงประเภท Speech", type=["wav", "mp3"])
+        audio_path = file_speech
     elif audio_option == "Music":
-        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงประเภท Music", type=["wav", "mp3"])
+        audio_path = file_music
     elif audio_option == "เลือกไฟล์ของคุณเอง":
         uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3"])
 
-    # ตรวจสอบว่าอัพโหลดไฟล์หรือยัง
-    if uploaded_file is not None:
-        audio_path = uploaded_file  # ใช้ไฟล์ที่อัพโหลด
-    else:
-        st.warning("กรุณาอัพโหลดไฟล์เสียงก่อนการประมวลผล")  # แจ้งเตือนหากไม่ได้อัพโหลดไฟล์
+   
+   
 
-    if uploaded_file is not None:
-        # ดึง features จากไฟล์เสียง
-        mel_spec = extract_features(audio_path)
+    # ดึง features จากไฟล์เสียง
+    mel_spec = extract_features(audio_path)
 
-        # ปรับขนาดของ Mel Spectrogram
-        max_len = 1320  # ขนาดที่โมเดลคาดหวัง
-        if mel_spec.shape[1] < max_len:
-            mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
-        elif mel_spec.shape[1] > max_len:
-            mel_spec = mel_spec[:, :max_len]
+    # ปรับขนาดของ Mel Spectrogram
+    max_len = 1320  # ขนาดที่โมเดลคาดหวัง
+    if mel_spec.shape[1] < max_len:
+        mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
+    elif mel_spec.shape[1] > max_len:
+        mel_spec = mel_spec[:, :max_len]
 
-        mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
+    mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
-        # ทำนายเสียง
-        prediction = model.predict(np.expand_dims(mel_spec, axis=0))[0][0]
-        speech_prob = prediction * 100
-        music_prob = (1 - prediction) * 100
+    # ทำนายเสียง
+    prediction = model.predict(np.expand_dims(mel_spec, axis=0))[0][0]
+    speech_prob = prediction * 100
+    music_prob = (1 - prediction) * 100
 
-        st.write(f"Speech Probability: {speech_prob:.2f}%")
-        progress_bar_speech = st.progress(int(speech_prob))  # ใช้ค่า speech_prob ตรงๆ
-        st.write(f"Music Probability: {music_prob:.2f}%")
-        progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
+    st.write(f"Speech Probability: {speech_prob:.2f}%")
+    progress_bar_speech = st.progress(int(speech_prob))  # ใช้ค่า speech_prob ตรงๆ
+    st.write(f"Music Probability: {music_prob:.2f}%")
+   
+    progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
 
 
