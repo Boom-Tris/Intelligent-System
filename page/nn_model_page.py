@@ -6,9 +6,7 @@ import gdown
 import os
 from pathlib import Path
 import yt_dlp as youtube_dl
-from pydub import AudioSegment
 import tempfile
-import subprocess
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
@@ -41,21 +39,6 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-# ฟังก์ชันแปลงไฟล์ .mp4 เป็น .wav
-def convert_mp4_to_wav(input_file, output_file):
-    try:
-        # ใช้ ffmpeg แปลงไฟล์ .mp4 เป็น .wav
-        command = ["ffmpeg", "-v", "error", "-i", input_file, output_file]
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return True
-    except subprocess.CalledProcessError as e:
-        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์ .mp4 เป็น .wav: {str(e)}")
-        st.error(f"FFmpeg output: {e.stderr.decode('utf-8')}")
-        return False
-    except Exception as e:
-        st.error(f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {str(e)}")
-        return False
-
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
@@ -85,14 +68,6 @@ def download_youtube_audio(url):
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {str(e)}")
         return None
-
-def validate_mp4(file_path):
-    try:
-        command = ["ffmpeg", "-v", "error", "-i", file_path, "-f", "null", "-"]
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return True
-    except subprocess.CalledProcessError:
-        return False
 
 # ฟังก์ชันหลัก
 def display_nn_model():
@@ -127,14 +102,6 @@ def display_nn_model():
         st.warning("กรุณาเลือกประเภทเสียงหรืออัพโหลดไฟล์เสียงให้ถูกต้อง")
         return
 
-    # ถ้าไฟล์เป็น .mp4 ให้แปลงเป็น .wav ก่อน
-    if audio_path.endswith(".mp4"):
-        wav_path = f"{audio_path}.wav"
-        if convert_mp4_to_wav(audio_path, wav_path):
-            audio_path = wav_path
-        else:
-            return
-
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
     if mel_spec is None:
@@ -166,7 +133,7 @@ def display_nn_model():
         st.error(f"เกิดข้อผิดพลาดในการทำนายเสียง: {str(e)}")
 
     # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
-    if "temp_file" in locals() and os.path.exists(temp_file.name):
-        os.unlink(temp_file.name)
+    if "temp_file" in locals() and os.path.exists(temp_file):
+        os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
