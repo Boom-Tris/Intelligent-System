@@ -117,6 +117,7 @@ def download_youtube_audio(url):
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
 
+
 # ฟังก์ชันหลัก
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")
