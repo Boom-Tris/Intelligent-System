@@ -50,18 +50,21 @@ def convert_mp4_to_wav(input_file, output_file):
         subprocess.run(command, check=True)
         return True
     except subprocess.CalledProcessError as e:
-        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์: {str(e)}")
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์ .mp4 เป็น .wav: {str(e)}")
         return False
 
 # ฟังก์ชันแปลง .wav เป็น .mp3
 def convert_wav_to_mp3(wav_file, output_file):
-    command = [
-        "ffmpeg",
-        "-i", wav_file,
-        "-acodec", "libmp3lame",
-        output_file
-    ]
-    subprocess.run(command, check=True)
+    try:
+        command = [
+            "ffmpeg",
+            "-i", wav_file,
+            "-acodec", "libmp3lame",
+            output_file
+        ]
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์ .wav เป็น .mp3: {str(e)}")
 
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP4
 def download_youtube_audio(url):
@@ -74,18 +77,22 @@ def download_youtube_audio(url):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # ตรวจสอบไฟล์ที่ดาวน์โหลดมา (เช็คว่า ffmpeg สามารถเปิดได้หรือไม่)
+        # ตรวจสอบว่าไฟล์สามารถแปลงได้ด้วย ffmpeg
         try:
             subprocess.run(['ffmpeg', '-v', 'error', '-i', temp_file.name], check=True)
-        except subprocess.CalledProcessError:
-            st.error(f"ไม่สามารถแปลงไฟล์ {temp_file.name} ได้ เนื่องจากเป็นไฟล์ที่ไม่รองรับ")
+        except subprocess.CalledProcessError as e:
+            st.error(f"ไม่สามารถแปลงไฟล์ MP4 เป็นไฟล์ที่รองรับได้: {str(e)}")
+            os.unlink(temp_file.name)  # ลบไฟล์ชั่วคราว
+            return None
+
+        # แปลงเป็น WAV
+        wav_path = f"{temp_file.name}.wav"
+        if convert_mp4_to_wav(temp_file.name, wav_path):
+            os.unlink(temp_file.name)  # ลบไฟล์ MP4 หลังแปลง
+            return wav_path
+        else:
             os.unlink(temp_file.name)
             return None
-        
-        # แปลงเป็น WAV
-        wav_path = convert_mp4_to_wav(temp_file.name, f"{temp_file.name}.wav")
-        os.unlink(temp_file.name)  # ลบไฟล์ MP4 หลังแปลงเสร็จ
-        return wav_path
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
