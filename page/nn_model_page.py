@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
-import yt_dlp 
+import yt_dlp  as youtube_dl 
 import tempfile
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
