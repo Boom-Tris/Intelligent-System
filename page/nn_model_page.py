@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
-import yt_dlp as youtube_dl
+import yt_dlp 
 import tempfile
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
@@ -44,28 +44,26 @@ model = load_model(model_path, compile=False)
 def download_youtube_audio(url):
     try:
         ydl_opts = {
-            'format': 'bestaudio/best',  # เลือกไฟล์เสียงที่ดีที่สุด
-            'outtmpl': '%(id)s.%(ext)s',  # ตั้งชื่อไฟล์ให้ตรงกับ ID ของวิดีโอ
+            'format': 'bestaudio/best',
+            'outtmpl': '%(id)s.%(ext)s',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '192',  # กำหนดคุณภาพเสียง
+                'preferredquality': '192',
             }],
-            'geo_bypass': True,  # ข้ามการจำกัดการเข้าถึงจากบางประเทศ
+            'geo_bypass': True,  # ข้ามการบล็อคจากบางประเทศ
             'headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             },
-            'cookiefile': 'cookies.txt',  # ใช้ cookies ถ้าจำเป็น
-            'noplaylist': True,  # หลีกเลี่ยงการดาวน์โหลดทั้ง Playlist
-            'verbose': True,  # แสดงข้อมูลเพิ่มเติม
+            'cookiefile': 'cookies.txt',
+            'noplaylist': True,
+            'verbose': True,
         }
 
-        # ดาวน์โหลดไฟล์
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
             temp_file = f"{info_dict['id']}.mp3"
 
-        # ตรวจสอบว่าไฟล์ที่ดาวน์โหลดมามีขนาดใหญ่กว่า 0 ไบต์
         if os.path.getsize(temp_file) == 0:
             st.error("ไฟล์ที่ดาวน์โหลดมามีขนาดเป็น 0 ไบต์")
             os.unlink(temp_file)
