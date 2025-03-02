@@ -49,7 +49,7 @@ def download_youtube_audio(url):
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
-            }],'verbose': True,
+            }],'cookiefile': 'cookies.txt', 'verbose': True, 
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
