@@ -7,6 +7,6 @@ librosa
 gdown
 pytube
 pydub
-ffmpeg-python
+ffmpeg
 yt-dlp
 gitpython
