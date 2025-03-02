@@ -42,6 +42,7 @@ model = load_model(model_path, compile=False)
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
+        # เพิ่ม headers และตัวเลือกเพิ่มเติมเพื่อหลีกเลี่ยงการบล็อกจาก YouTube
         ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': '%(id)s.%(ext)s',
@@ -50,7 +51,11 @@ def download_youtube_audio(url):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
+            'headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+            }
         }
+
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
             temp_file = f"{info_dict['id']}.mp3"
@@ -108,7 +113,6 @@ def display_nn_model():
         return  # หยุดถ้ามีข้อผิดพลาดในการโหลดไฟล์เสียง
 
     # ปรับขนาดของ Mel Spectrogram
- # ปรับขนาดของ Mel Spectrogram
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
@@ -139,4 +143,4 @@ def display_nn_model():
     if "temp_file" in locals() and os.path.exists(temp_file):
         os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
-        os.unlink(audio_path) 
+        os.unlink(audio_path)
