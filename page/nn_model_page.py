@@ -9,6 +9,7 @@ import yt_dlp as youtube_dl
 from pydub import AudioSegment
 import tempfile
 import subprocess
+from pytube import YouTube
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
@@ -56,16 +57,13 @@ def convert_mp4_to_wav(input_file, output_file):
         st.error(f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {str(e)}")
         return False
 
-# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ WAV
+# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': temp_file.name,
-        }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+        yt = YouTube(url)
+        audio_stream = yt.streams.filter(only_audio=True).first()
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        audio_stream.download(filename=temp_file.name)
 
         # ตรวจสอบว่าไฟล์ที่ดาวน์โหลดมามีขนาดใหญ่กว่า 0 ไบต์
         if os.path.getsize(temp_file.name) == 0:
@@ -73,26 +71,7 @@ def download_youtube_audio(url):
             os.unlink(temp_file.name)
             return None
 
-        # ตรวจสอบว่าไฟล์ที่ดาวน์โหลดมาเป็นไฟล์ MP4 ที่ถูกต้อง
-        if not temp_file.name.endswith(".mp4"):
-            st.error("ไฟล์ที่ดาวน์โหลดมาไม่ใช่ไฟล์ MP4 ที่ถูกต้อง")
-            os.unlink(temp_file.name)
-            return None
-
-        # ตรวจสอบว่าไฟล์ MP4 มีข้อมูลที่ถูกต้อง
-        if not validate_mp4(temp_file.name):
-            st.error("ไฟล์ MP4 ที่ดาวน์โหลดมาไม่ถูกต้อง")
-            os.unlink(temp_file.name)
-            return None
-
-        # แปลงเป็น WAV
-        wav_path = f"{temp_file.name}.wav"
-        if convert_mp4_to_wav(temp_file.name, wav_path):
-            os.unlink(temp_file.name)  # ลบไฟล์ MP4 หลังแปลง
-            return wav_path
-        else:
-            os.unlink(temp_file.name)
-            return None
+        return temp_file.name
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
