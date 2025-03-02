@@ -36,11 +36,9 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-import yt_dlp as youtube_dl
-import tempfile
 
-import yt_dlp as youtube_dl
-import tempfile
+
+
 
 # ฟังก์ชันเพื่อดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3 โดยใช้ yt-dlp
 def download_youtube_audio(url):
