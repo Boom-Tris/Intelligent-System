@@ -9,7 +9,6 @@ import yt_dlp as youtube_dl
 from pydub import AudioSegment
 import tempfile
 import subprocess
-from pytube import YouTube
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
@@ -80,8 +79,11 @@ def download_youtube_audio(url):
             return None
 
         return temp_file
-    except Exception as e:
+    except youtube_dl.utils.DownloadError as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
+        return None
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {str(e)}")
         return None
 
 def validate_mp4(file_path):
@@ -145,19 +147,26 @@ def display_nn_model():
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
-    # ทำนายเสียง
-    prediction = model.predict(np.expand_dims(mel_spec, axis=0))[0][0]
-    speech_prob = prediction * 100
-    music_prob = (1 - prediction) * 100
+    # ตรวจสอบขนาดของข้อมูลที่ป้อนเข้าโมเดล
+    if mel_spec.shape != (128, 1320, 1):
+        st.error(f"ขนาดของข้อมูลที่ป้อนเข้าโมเดลไม่ถูกต้อง: {mel_spec.shape}")
+        return
 
-    st.write(f"Speech Probability: {speech_prob:.2f}%")
-    st.progress(int(speech_prob))
-    st.write(f"Music Probability: {music_prob:.2f}%")
-    st.progress(int(music_prob))
+    # ทำนายเสียง
+    try:
+        prediction = model.predict(np.expand_dims(mel_spec, axis=0))[0][0]
+        speech_prob = prediction * 100
+        music_prob = (1 - prediction) * 100
+
+        st.write(f"Speech Probability: {speech_prob:.2f}%")
+        st.progress(int(speech_prob))
+        st.write(f"Music Probability: {music_prob:.2f}%")
+        st.progress(int(music_prob))
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดในการทำนายเสียง: {str(e)}")
 
     # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
-    if "temp_file" in locals() and os.path.exists(temp_file):
-        os.unlink(temp_file)
+    if "temp_file" in locals() and os.path.exists(temp_file.name):
+        os.unlink(temp_file.name)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
-
