@@ -37,14 +37,19 @@ model = load_model(model_path, compile=False)
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
 
-    # เลือกไฟล์เสียงจาก Streamlit UI
-    audio_option = st.radio("เลือกไฟล์เสียงที่ต้องการทดสอบ:", ["Speech", "Music"], key="audio_option")
+    # เพิ่มตัวเลือกในการอัพโหลดไฟล์เสียง
+    uploaded_file = st.file_uploader("เลือกไฟล์เสียงที่ต้องการทดสอบ", type=["wav", "mp3"])
 
-    # กำหนดไฟล์เสียงตามตัวเลือก
-    if audio_option == "Speech":
-        audio_path = file_speech
+    # ตรวจสอบว่าอัพโหลดไฟล์หรือยัง
+    if uploaded_file is not None:
+        audio_path = uploaded_file
     else:
-        audio_path = file_music
+        # ถ้าไม่ได้อัพโหลดไฟล์, ใช้ไฟล์เริ่มต้น
+        audio_option = st.radio("เลือกไฟล์เสียงที่ต้องการทดสอบ:", ["Speech", "Music"], key="audio_option")
+        if audio_option == "Speech":
+            audio_path = file_speech
+        else:
+            audio_path = file_music
 
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
@@ -70,4 +75,3 @@ def display_nn_model():
     progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
 
 # เรียกใช้งานฟังก์ชัน
-
