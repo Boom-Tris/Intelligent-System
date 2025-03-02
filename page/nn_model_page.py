@@ -45,23 +45,24 @@ model = load_model(model_path, compile=False)
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")  # ตั้งชื่อไฟล์เป็น .mp3
         ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': temp_file.name,
+            'format': 'bestaudio/best',  # ดาวน์โหลดเฉพาะเสียง
+            'outtmpl': temp_file.name,   # กำหนดที่เก็บไฟล์
             'postprocessors': [{
                 'key': 'FFmpegAudioConvertor',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
+                'preferredcodec': 'mp3',   # แปลงไฟล์ให้เป็น mp3
+                'preferredquality': '192',  # กำหนดคุณภาพไฟล์
             }],
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        return temp_file.name
+        return temp_file.name  # คืนค่าพาธของไฟล์ mp3 ที่ดาวน์โหลดและแปลงแล้ว
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
+
 
 # ฟังก์ชันหลัก
 def display_nn_model():
