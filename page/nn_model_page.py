@@ -11,6 +11,8 @@ import tempfile
 import shutil
 import subprocess
 
+
+
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
 
@@ -41,7 +43,31 @@ def extract_features(audio_path):
 
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
+def convert_webm_to_mp3(input_file, output_file):
+    # คำสั่ง ffmpeg ที่จะใช้แปลงไฟล์
+    command = ["ffmpeg", "-i", input_file, "-c:a", "libmp3lame", output_file]
+    subprocess.run(command, check=True)
 
+st.title("WebM to MP3 Converter")
+
+# อัปโหลดไฟล์
+uploaded_file = st.file_uploader("Upload a webm file", type="webm")
+
+if uploaded_file is not None:
+    input_path = f"/tmp/{uploaded_file.name}"
+    output_path = f"/tmp/{uploaded_file.name}.mp3"
+
+    # บันทึกไฟล์ที่อัปโหลด
+    with open(input_path, "wb") as f:
+        f.write(uploaded_file.read())
+
+    if st.button("Convert to MP3"):
+        try:
+            convert_webm_to_mp3(input_path, output_path)
+            st.success(f"Conversion successful! MP3 saved to {output_path}")
+            st.audio(output_path)  # ให้เล่นไฟล์ MP3 ที่แปลงแล้ว
+        except Exception as e:
+            st.error(f"Error during conversion: {e}")
 # ฟังก์ชันแปลงไฟล์เสียงเป็น MP3
 def convert_to_mp3(input_path):
     try:
