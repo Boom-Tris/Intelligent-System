@@ -39,28 +39,25 @@ model = load_model(model_path, compile=False)
 # ฟังก์ชันแปลงไฟล์เสียงเป็น MP3
 def convert_to_mp3(input_path, output_path):
     try:
-        # โหลดไฟล์
         audio = AudioSegment.from_file(input_path)
-        # แปลงเป็น mp3 และบันทึกไฟล์
         audio.export(output_path, format="mp3")
         return output_path
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์เสียง: {str(e)}")
         return None
 
-# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3 โดยใช้ yt-dlp
+# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
-            'key': 'FFmpegExtractAudio',  # เปลี่ยนเป็น FFmpegExtractAudio
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-    }],
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
             'outtmpl': tempfile.mktemp(suffix='.webm')
-}
-            
+        }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
@@ -69,11 +66,21 @@ def download_youtube_audio(url):
             # แปลงไฟล์จาก webm เป็น mp3
             mp3_path = tempfile.mktemp(suffix='.mp3')
             convert_to_mp3(download_path, mp3_path)
-            return mp3_path  # คืนไฟล์ MP3 ที่แปลงแล้ว
+            return mp3_path
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลดและแปลง YouTube: {str(e)}")
         return None
 
+# หน้าหลักของ Streamlit
+st.title("YouTube to MP3 Converter")
+
+youtube_url = st.text_input("กรุณากรอกลิงก์ YouTube:")
+if youtube_url:
+    st.write("กำลังดาวน์โหลดและแปลงไฟล์...")
+    mp3_path = download_youtube_audio(youtube_url)
+    if mp3_path:
+        st.success("แปลงไฟล์เสร็จสิ้น!")
+        st.audio(mp3_path)
 # ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
