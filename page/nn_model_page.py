@@ -139,4 +139,4 @@ def display_nn_model():
     if "temp_file" in locals() and os.path.exists(temp_file):
         os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
-        os.unlink(audio_path) https://youtu.be/RqC5OViuuL8?si=R9stMRXW0zAhOg32
+        os.unlink(audio_path) 
