@@ -51,6 +51,7 @@ def display_nn_model():
             audio_path = uploaded_file
         else:
             st.warning("กรุณาอัพโหลดไฟล์เสียง")  # แจ้งเตือนหากไม่มีการอัพโหลดไฟล์
+            return  # หากไม่มีไฟล์ให้หยุดการทำงาน
 
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
@@ -73,5 +74,3 @@ def display_nn_model():
     progress_bar_speech = st.progress(int(speech_prob))  # ใช้ค่า speech_prob ตรงๆ
     st.write(f"Music Probability: {music_prob:.2f}%")
     progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
-
-
