@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
-import yt_dlp  as youtube_dl 
+from pytube import YouTube
 import tempfile
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
@@ -40,41 +40,30 @@ def extract_features(audio_path):
 model = load_model(model_path, compile=False)
 
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
-# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': '%(id)s.%(ext)s',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'geo_bypass': True,  # ข้ามการบล็อคจากบางประเทศ
-            'headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            },
-            'cookiefile': 'cookies.txt',
-            'noplaylist': True,
-            'verbose': True,
-        }
+        # ดาวน์โหลดเสียงจาก YouTube ด้วย pytube
+        yt = YouTube(url)
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
-            temp_file = f"{info_dict['id']}.mp3"
+        # เลือกการดาวน์โหลดเสียงที่ดีที่สุด
+        stream = yt.streams.filter(only_audio=True).first()
 
-        if os.path.getsize(temp_file) == 0:
+        # ตั้งชื่อไฟล์สำหรับดาวน์โหลด
+        temp_file = f"downloads/{yt.video_id}.mp4"
+        stream.download(output_path="downloads", filename=f"{yt.video_id}.mp4")
+
+        # เปลี่ยนชื่อไฟล์เป็น MP3
+        mp3_file = f"downloads/{yt.video_id}.mp3"
+        os.rename(temp_file, mp3_file)
+
+        if os.path.getsize(mp3_file) == 0:
             st.error("ไฟล์ที่ดาวน์โหลดมามีขนาดเป็น 0 ไบต์")
-            os.unlink(temp_file)
+            os.unlink(mp3_file)
             return None
 
-        return temp_file
-    except youtube_dl.utils.DownloadError as e:
-        st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
-        return None
+        return mp3_file
     except Exception as e:
-        st.error(f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {str(e)}")
+        st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
 
 # ฟังก์ชันหลัก
@@ -116,7 +105,6 @@ def display_nn_model():
         return  # หยุดถ้ามีข้อผิดพลาดในการโหลดไฟล์เสียง
 
     # ปรับขนาดของ Mel Spectrogram
-  # ปรับขนาดของ Mel Spectrogram
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
@@ -124,7 +112,6 @@ def display_nn_model():
         mel_spec = mel_spec[:, :max_len]  # ครอปให้ได้ขนาดที่ต้องการ
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
- # เพิ่มมิติให้เหมาะกับโมเดล
 
     # ตรวจสอบขนาดของข้อมูลที่ป้อนเข้าโมเดล
     if mel_spec.shape != (128, 1320, 1):
