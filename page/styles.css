@@ -21,9 +21,3 @@
     font-weight: bold;
 }
 
-/* styles.css */
-/* styles.css */
-.my-progress-bar .stProgress > div {
-    background-color: orange !important;  /* สีส้ม */
-    height: 30px !important;              /* ปรับขนาดความสูงของ progress bar */
-}
