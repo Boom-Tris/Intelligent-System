@@ -11,7 +11,6 @@ import tempfile
 import shutil
 import subprocess
 
-
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
 
@@ -43,22 +42,18 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
+# ฟังก์ชันแปลงไฟล์ .webm เป็น .wav
 def convert_webm_to_wav(input_file, output_file):
     try:
-        # ตรวจสอบว่าไฟล์สามารถเปิดได้หรือไม่ด้วย ffmpeg
-        subprocess.run(['ffmpeg', '-v', 'error', '-i', input_file], check=True)
-        
-        # แปลงเป็นไฟล์ .wav
-        audio = AudioSegment.from_file(input_file, format="webm")
-        audio.export(output_file, format="wav")
+        # ใช้ ffmpeg แปลงไฟล์ .webm เป็น .wav
+        command = ["ffmpeg", "-i", input_file, output_file]
+        subprocess.run(command, check=True)
         return True
-    except subprocess.CalledProcessError:
-        st.error(f"ไม่สามารถแปลงไฟล์ {input_file} ได้ เนื่องจากไฟล์ไม่รองรับ")
-        return False
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์: {str(e)}")
         return False
 
+# ฟังก์ชันแปลง .wav เป็น .mp3
 def convert_wav_to_mp3(wav_file, output_file):
     command = [
         "ffmpeg",
@@ -67,39 +62,6 @@ def convert_wav_to_mp3(wav_file, output_file):
         output_file
     ]
     subprocess.run(command, check=True)
-
-st.title("WebM to MP3 Converter")
-
-uploaded_file = st.file_uploader("Upload a webm file", type="webm")
-
-if uploaded_file is not None:
-    input_path = f"/tmp/{uploaded_file.name}"
-    wav_path = f"/tmp/{uploaded_file.name}.wav"
-    mp3_path = f"/tmp/{uploaded_file.name}.mp3"
-
-    with open(input_path, "wb") as f:
-        f.write(uploaded_file.read())
-
-    if st.button("Convert to MP3"):
-        try:
-            if convert_webm_to_wav(input_path, wav_path):  # แปลงเป็น wav ก่อน
-                convert_wav_to_mp3(wav_path, mp3_path)  # แปลงเป็น mp3
-                st.success(f"Conversion successful! MP3 saved to {mp3_path}")
-                st.audio(mp3_path)
-            else:
-                st.error("ไม่สามารถแปลงไฟล์ .webm เป็น .wav ได้")
-        except Exception as e:
-            st.error(f"Error during conversion: {e}")
-
-def convert_to_mp3(input_path):
-    try:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        audio = AudioSegment.from_file(input_path)
-        audio.export(temp_file.name, format="mp3")
-        return temp_file.name
-    except Exception as e:
-        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์เสียง: {str(e)}")
-        return None
 
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
@@ -128,6 +90,16 @@ def download_youtube_audio(url):
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
 
+# ฟังก์ชันแปลงไฟล์เป็น MP3
+def convert_to_mp3(input_path):
+    try:
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        audio = AudioSegment.from_file(input_path)
+        audio.export(temp_file.name, format="mp3")
+        return temp_file.name
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์เสียง: {str(e)}")
+        return None
 
 # ฟังก์ชันหลัก
 def display_nn_model():
@@ -143,9 +115,9 @@ def display_nn_model():
     elif audio_option == "Music":
         audio_path = str(file_music)
     elif audio_option == "เลือกไฟล์ของคุณเอง":
-        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3"])
+        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3", "webm"])
         if uploaded_file is not None:
-            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".webm")
             temp_file.write(uploaded_file.read())
             temp_file.close()
             audio_path = temp_file.name
@@ -158,6 +130,14 @@ def display_nn_model():
         st.warning("กรุณาเลือกประเภทเสียงหรืออัพโหลดไฟล์เสียงให้ถูกต้อง")
         return
 
+    # ถ้าไฟล์เป็น .webm ให้แปลงเป็น .wav ก่อน
+    if audio_path.endswith(".webm"):
+        wav_path = f"{audio_path}.wav"
+        if convert_webm_to_wav(audio_path, wav_path):
+            audio_path = wav_path
+        else:
+            return
+
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
     if mel_spec is None:
@@ -167,6 +147,8 @@ def display_nn_model():
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
+    elif mel_spec.shape[1] > max_len:
+        mel_spec = mel_spec[:, :max_len]
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
@@ -185,3 +167,4 @@ def display_nn_model():
         os.unlink(temp_file.name)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
+
