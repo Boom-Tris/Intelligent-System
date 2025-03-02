@@ -39,7 +39,7 @@ def extract_features(audio_path):
 model = load_model(model_path, compile=False)
 
 # ฟังก์ชันหลัก
-def display_nn_model():
+def nn_modele():
     st.title("แอปวิเคราะห์เสียง Speech และ Music")
     st.write("กรุณาเลือกประเภทเสียงที่ต้องการทดสอบ:")
 
@@ -104,3 +104,6 @@ def display_nn_model():
         os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
+def display_nn_model():
+    nn_modele()
+    
