@@ -8,7 +8,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor  # ใช้สำหรับ Neural Network Model
 from pathlib import Path
-
+from nn_model_page import nn_modele
 # หาตำแหน่งโฟลเดอร์ที่ไฟล์ .pkl อยู่
 
 
@@ -64,3 +64,4 @@ def display_demo_prediction():
         pred = (pred_dt + pred_knn + pred_svr) / 3
 
     st.write(f"ราคาหุ้นที่ทำนาย: {pred[0]:.2f}")
+    nn_modele()
