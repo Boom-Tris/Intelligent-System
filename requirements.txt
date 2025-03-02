@@ -5,3 +5,5 @@ numpy
 seaborn
 librosa
 gdown
+moviepy
+pytube
