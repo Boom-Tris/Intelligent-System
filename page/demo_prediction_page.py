@@ -64,4 +64,5 @@ def display_demo_prediction():
         pred = (pred_dt + pred_knn + pred_svr) / 3
 
     st.write(f"ราคาหุ้นที่ทำนาย: {pred[0]:.2f}")
+    st.title("แอปวิเคราะห์เสียง Speech และ Music")
     nn_modele()
