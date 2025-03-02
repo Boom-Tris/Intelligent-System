@@ -144,3 +144,7 @@ def display_nn_model():
         os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
+
+# เรียกใช้ฟังก์ชันใน main()
+if __name__ == "__main__":
+    display_nn_model()
