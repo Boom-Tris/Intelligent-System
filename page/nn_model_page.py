@@ -63,10 +63,33 @@ def display_nn_model():
     speech_prob = prediction * 100
     music_prob = (1 - prediction) * 100
 
+    # แสดงผลลัพธ์เป็นเปอร์เซ็นต์
     st.write(f"Speech Probability: {speech_prob:.2f}%")
     st.write(f"Music Probability: {music_prob:.2f}%")
-    progress_bar_speech = st.progress(int(speech_prob))  # ใช้ค่า speech_prob ตรงๆ
-    progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
 
-# เรียกใช้งานฟังก์ชัน
+    # แสดงแถบความคืบหน้า (Progress Bar) โดยใช้ค่า % ที่ได้จากการทำนาย
+    st.write("กำลังแสดงผล...")
+
+    # แสดงแถบความคืบหน้าโดยใช้สีต่างกัน
+    st.markdown(f"""
+        <style>
+            .progress-bar-speech .stProgress > div:first-child {{
+                background-color: #FF6347; /* สีแดงสำหรับ Speech */
+            }}
+            .progress-bar-music .stProgress > div:first-child {{
+                background-color: #4682B4; /* สีน้ำเงินสำหรับ Music */
+            }}
+        </style>
+        """, unsafe_allow_html=True)
+
+    # แสดงแถบความคืบหน้าสำหรับ Speech
+    st.markdown(f'<div class="progress-bar-speech">', unsafe_allow_html=True)
+    progress_bar_speech = st.progress(int(speech_prob))  # ใช้ค่า speech_prob ตรงๆ
+    st.markdown(f'</div>', unsafe_allow_html=True)
+
+    # แสดงแถบความคืบหน้าสำหรับ Music
+    st.markdown(f'<div class="progress-bar-music">', unsafe_allow_html=True)
+    progress_bar_music = st.progress(int(music_prob))  # ใช้ค่า music_prob ตรงๆ
+    st.markdown(f'</div>', unsafe_allow_html=True)
+
 
