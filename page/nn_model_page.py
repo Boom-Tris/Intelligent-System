@@ -108,14 +108,14 @@ def display_nn_model():
         return  # หยุดถ้ามีข้อผิดพลาดในการโหลดไฟล์เสียง
 
     # ปรับขนาดของ Mel Spectrogram
-    max_len = 6251  # ขนาดที่โมเดลคาดหวัง
+    max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
     # ตรวจสอบขนาดของข้อมูลที่ป้อนเข้าโมเดล
-    if mel_spec.shape != (128, 1320, 1):
+    if mel_spec.shape != (128, 6251, 1):
         st.error(f"ขนาดของข้อมูลที่ป้อนเข้าโมเดลไม่ถูกต้อง: {mel_spec.shape}")
         return
 
