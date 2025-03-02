@@ -52,7 +52,7 @@ def download_youtube_audio(url):
                 'preferredquality': '192',
             }],
             'headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
         }
 
@@ -145,6 +145,3 @@ def display_nn_model():
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
 
-# เรียกใช้ฟังก์ชันใน main()
-if __name__ == "__main__":
-    display_nn_model()
