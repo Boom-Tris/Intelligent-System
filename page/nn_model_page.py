@@ -43,39 +43,43 @@ def extract_features(audio_path):
 
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
-def convert_webm_to_mp3(input_file, output_file):
-   
+def convert_webm_to_wav(input_file, temp_wav_file):
     command = [
         "ffmpeg",
-        "-v", "error",  # ลดข้อมูล log ที่แสดงออกมา
-        "-i", input_file,  # แหล่งไฟล์ที่ต้องการแปลง
-        "-acodec", "libmp3lame",  # ใช้ codec สำหรับ MP3
-        "-vn",  # ไม่เอาวิดีโอ
+        "-i", input_file,
+        temp_wav_file
+    ]
+    subprocess.run(command, check=True)
+
+def convert_wav_to_mp3(wav_file, output_file):
+    command = [
+        "ffmpeg",
+        "-i", wav_file,
+        "-acodec", "libmp3lame",
         output_file
     ]
     subprocess.run(command, check=True)
 
 st.title("WebM to MP3 Converter")
 
-# อัปโหลดไฟล์
 uploaded_file = st.file_uploader("Upload a webm file", type="webm")
 
 if uploaded_file is not None:
     input_path = f"/tmp/{uploaded_file.name}"
-    output_path = f"/tmp/{uploaded_file.name}.mp3"
+    wav_path = f"/tmp/{uploaded_file.name}.wav"
+    mp3_path = f"/tmp/{uploaded_file.name}.mp3"
 
-    # บันทึกไฟล์ที่อัปโหลด
     with open(input_path, "wb") as f:
         f.write(uploaded_file.read())
 
     if st.button("Convert to MP3"):
         try:
-            convert_webm_to_mp3(input_path, output_path)
-            st.success(f"Conversion successful! MP3 saved to {output_path}")
-            st.audio(output_path)  # ให้เล่นไฟล์ MP3 ที่แปลงแล้ว
+            convert_webm_to_wav(input_path, wav_path)  # แปลงเป็น wav ก่อน
+            convert_wav_to_mp3(wav_path, mp3_path)  # แปลงเป็น mp3
+            st.success(f"Conversion successful! MP3 saved to {mp3_path}")
+            st.audio(mp3_path)
         except Exception as e:
             st.error(f"Error during conversion: {e}")
-# ฟังก์ชันแปลงไฟล์เสียงเป็น MP3
 def convert_to_mp3(input_path):
     try:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
