@@ -79,6 +79,12 @@ def download_youtube_audio(url):
             os.unlink(temp_file.name)
             return None
 
+        # ตรวจสอบว่าไฟล์ MP4 มีข้อมูลที่ถูกต้อง
+        if not validate_mp4(temp_file.name):
+            st.error("ไฟล์ MP4 ที่ดาวน์โหลดมาไม่ถูกต้อง")
+            os.unlink(temp_file.name)
+            return None
+
         # แปลงเป็น WAV
         wav_path = f"{temp_file.name}.wav"
         if convert_mp4_to_wav(temp_file.name, wav_path):
@@ -90,6 +96,14 @@ def download_youtube_audio(url):
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
+
+def validate_mp4(file_path):
+    try:
+        command = ["ffmpeg", "-v", "error", "-i", file_path, "-f", "null", "-"]
+        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
 # ฟังก์ชันหลัก
 def display_nn_model():
