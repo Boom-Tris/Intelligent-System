@@ -12,7 +12,6 @@ import shutil
 import subprocess
 
 
-
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
 
@@ -43,11 +42,19 @@ def extract_features(audio_path):
 
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
+
 def convert_webm_to_wav(input_file, output_file):
     try:
+        # ตรวจสอบว่าไฟล์สามารถเปิดได้หรือไม่ด้วย ffmpeg
+        subprocess.run(['ffmpeg', '-v', 'error', '-i', input_file], check=True)
+        
+        # แปลงเป็นไฟล์ .wav
         audio = AudioSegment.from_file(input_file, format="webm")
         audio.export(output_file, format="wav")
         return True
+    except subprocess.CalledProcessError:
+        st.error(f"ไม่สามารถแปลงไฟล์ {input_file} ได้ เนื่องจากไฟล์ไม่รองรับ")
+        return False
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์: {str(e)}")
         return False
@@ -75,12 +82,15 @@ if uploaded_file is not None:
 
     if st.button("Convert to MP3"):
         try:
-            convert_webm_to_wav(input_path, wav_path)  # แปลงเป็น wav ก่อน
-            convert_wav_to_mp3(wav_path, mp3_path)  # แปลงเป็น mp3
-            st.success(f"Conversion successful! MP3 saved to {mp3_path}")
-            st.audio(mp3_path)
+            if convert_webm_to_wav(input_path, wav_path):  # แปลงเป็น wav ก่อน
+                convert_wav_to_mp3(wav_path, mp3_path)  # แปลงเป็น mp3
+                st.success(f"Conversion successful! MP3 saved to {mp3_path}")
+                st.audio(mp3_path)
+            else:
+                st.error("ไม่สามารถแปลงไฟล์ .webm เป็น .wav ได้")
         except Exception as e:
             st.error(f"Error during conversion: {e}")
+
 def convert_to_mp3(input_path):
     try:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
@@ -157,8 +167,6 @@ def display_nn_model():
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
-    elif mel_spec.shape[1] > max_len:
-        mel_spec = mel_spec[:, :max_len]
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
