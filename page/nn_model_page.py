@@ -138,7 +138,9 @@ def display_nn_model():
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการทำนายเสียง: {str(e)}")
 
-    # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
+    
+     # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
     if "temp_file" in locals() and os.path.exists(temp_file):
         os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
+        os.unlink(audio_path)  # เพิ่มการลบไฟล์ชั่วคราว
