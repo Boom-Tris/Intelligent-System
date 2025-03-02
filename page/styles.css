@@ -20,3 +20,8 @@
   
     font-weight: bold;
 }
+
+/* styles.css */
+div[role="progressbar"] > div {
+    background-color: orange !important;
+}
