@@ -59,11 +59,16 @@ def display_nn_model():
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
     # ทำนายเสียง
+    st.write("กำลังทำนาย...กรุณารอ")  # บอกสถานะการทำนาย
     prediction = model.predict(np.expand_dims(mel_spec, axis=0))[0][0]
     speech_prob = prediction * 100
     music_prob = (1 - prediction) * 100
 
+    # แสดงผลเปอร์เซ็นต์ในรูปแบบหลอด
+    st.progress(speech_prob / 100)  # แสดงเปอร์เซ็นต์ของ Speech
     st.write(f"Speech Probability: {speech_prob:.2f}%")
+
+    st.progress(music_prob / 100)  # แสดงเปอร์เซ็นต์ของ Music
     st.write(f"Music Probability: {music_prob:.2f}%")
 
 # เรียกใช้งานฟังก์ชัน
