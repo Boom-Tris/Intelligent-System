@@ -42,10 +42,10 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-# ฟังก์ชันแปลงไฟล์ .webm เป็น .wav
-def convert_webm_to_wav(input_file, output_file):
+# ฟังก์ชันแปลงไฟล์ .mp4 เป็น .wav
+def convert_mp4_to_wav(input_file, output_file):
     try:
-        # ใช้ ffmpeg แปลงไฟล์ .webm เป็น .wav
+        # ใช้ ffmpeg แปลงไฟล์ .mp4 เป็น .wav
         command = ["ffmpeg", "-i", input_file, output_file]
         subprocess.run(command, check=True)
         return True
@@ -63,7 +63,7 @@ def convert_wav_to_mp3(wav_file, output_file):
     ]
     subprocess.run(command, check=True)
 
-# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
+# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP4
 def download_youtube_audio(url):
     try:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
@@ -82,10 +82,10 @@ def download_youtube_audio(url):
             os.unlink(temp_file.name)
             return None
         
-        # แปลงเป็น MP3
-        mp3_path = convert_to_mp3(temp_file.name)
-        os.unlink(temp_file.name)  # ลบไฟล์ webm หลังแปลงเสร็จ
-        return mp3_path
+        # แปลงเป็น WAV
+        wav_path = convert_mp4_to_wav(temp_file.name, f"{temp_file.name}.wav")
+        os.unlink(temp_file.name)  # ลบไฟล์ MP4 หลังแปลงเสร็จ
+        return wav_path
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
@@ -115,9 +115,9 @@ def display_nn_model():
     elif audio_option == "Music":
         audio_path = str(file_music)
     elif audio_option == "เลือกไฟล์ของคุณเอง":
-        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3", "webm"])
+        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3", "mp4"])
         if uploaded_file is not None:
-            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".webm")
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
             temp_file.write(uploaded_file.read())
             temp_file.close()
             audio_path = temp_file.name
@@ -130,10 +130,10 @@ def display_nn_model():
         st.warning("กรุณาเลือกประเภทเสียงหรืออัพโหลดไฟล์เสียงให้ถูกต้อง")
         return
 
-    # ถ้าไฟล์เป็น .webm ให้แปลงเป็น .wav ก่อน
-    if audio_path.endswith(".webm"):
+    # ถ้าไฟล์เป็น .mp4 ให้แปลงเป็น .wav ก่อน
+    if audio_path.endswith(".mp4"):
         wav_path = f"{audio_path}.wav"
-        if convert_webm_to_wav(audio_path, wav_path):
+        if convert_mp4_to_wav(audio_path, wav_path):
             audio_path = wav_path
         else:
             return
@@ -167,4 +167,5 @@ def display_nn_model():
         os.unlink(temp_file.name)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
+
 
