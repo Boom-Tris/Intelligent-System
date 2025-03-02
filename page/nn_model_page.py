@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
-from pytube import YouTube
+import yt_dlp as youtube_dl  # ใช้ yt-dlp แทน pytube
 from pydub import AudioSegment
 import tempfile
 
@@ -36,28 +36,34 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-# ฟังก์ชันเพื่อดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3 โดยใช้ pydub
+import yt_dlp as youtube_dl
+import tempfile
+
+import yt_dlp as youtube_dl
+import tempfile
+
+# ฟังก์ชันเพื่อดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3 โดยใช้ yt-dlp
 def download_youtube_audio(url):
     try:
-        # ดึงข้อมูลจาก YouTube
-        yt = YouTube(url)
-        audio_stream = yt.streams.filter(only_audio=True).first()
+        ydl_opts = {
+            'format': 'bestaudio/best',  # เลือกไฟล์เสียงที่ดีที่สุด
+            'postprocessors': [{
+                'key': 'AudioFileConverter',  # ใช้ 'AudioFileConverter' แทน 'FFmpegAudioConvertor'
+                'preferredcodec': 'mp3',  # แปลงเป็น MP3
+                'preferredquality': '192',  # คุณภาพเสียง 192 kbps
+            }],
+            'outtmpl': tempfile.mktemp(suffix='.mp3')  # ใช้ไฟล์ชั่วคราว
+        }
 
-        # สร้างไฟล์ชั่วคราวในการจัดเก็บ
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
-            audio_stream.download(output_path=tmp_file.name)
-            tmp_file.close()
-
-            # แปลงไฟล์เป็น MP3 โดยใช้ pydub
-            audio_clip = AudioSegment.from_file(tmp_file.name)
-            mp3_tempfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
-            audio_clip.export(mp3_tempfile.name, format="mp3")
-            audio_clip.close()
-
-            return mp3_tempfile.name
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            return ydl.prepare_filename(info_dict)  # คืนชื่อไฟล์ MP3 ที่ดาวน์โหลด
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลดและแปลง YouTube: {str(e)}")
         return None
+
+
+
 
 # ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
@@ -65,6 +71,8 @@ def display_nn_model():
 
     # ให้ผู้ใช้เลือกประเภทของเสียงก่อน
     audio_option = st.radio("เลือกประเภทเสียงที่ต้องการทดสอบ:", ["Speech", "Music", "เลือกไฟล์ของคุณเอง", "ลิ้งค์ YouTube"], key="audio_option")
+
+    audio_path = None  # กำหนดค่าเริ่มต้นให้กับ audio_path
 
     # ถ้าเลือก Speech หรือ Music ให้ใช้ไฟล์ที่กำหนดไว้
     if audio_option == "Speech":
@@ -84,6 +92,10 @@ def display_nn_model():
             audio_path = download_youtube_audio(youtube_url)
             if not audio_path:
                 return  # หากไม่สามารถดาวน์โหลดหรือแปลงไฟล์ได้ ให้หยุดการทำงาน
+
+    if audio_path is None:
+        st.warning("กรุณาเลือกประเภทเสียงหรืออัพโหลดไฟล์เสียง")  # แจ้งเตือนหากยังไม่มีการเลือกไฟล์
+        return  # หากไม่มี audio_path ให้หยุดการทำงาน
 
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
