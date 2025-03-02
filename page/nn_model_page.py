@@ -40,17 +40,17 @@ def display_nn_model():
     # ให้ผู้ใช้เลือกประเภทของเสียงก่อน
     audio_option = st.radio("เลือกประเภทเสียงที่ต้องการทดสอบ:", ["Speech", "Music", "เลือกไฟล์ของคุณเอง"], key="audio_option")
 
-    # ถ้าเลือก Speech หรือ Music ให้แสดงตัวเลือกในการอัพโหลดไฟล์
-    uploaded_file = None
+    # ถ้าเลือก Speech หรือ Music ให้ใช้ไฟล์ที่กำหนดไว้
     if audio_option == "Speech":
         audio_path = file_speech
     elif audio_option == "Music":
         audio_path = file_music
     elif audio_option == "เลือกไฟล์ของคุณเอง":
         uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3"])
-
-   
-   
+        if uploaded_file is not None:
+            audio_path = uploaded_file
+        else:
+            st.warning("กรุณาอัพโหลดไฟล์เสียง")  # แจ้งเตือนหากไม่มีการอัพโหลดไฟล์
 
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
@@ -72,7 +72,6 @@ def display_nn_model():
     st.write(f"Speech Probability: {speech_prob:.2f}%")
     progress_bar_speech = st.progress(int(speech_prob))  # ใช้ค่า speech_prob ตรงๆ
     st.write(f"Music Probability: {music_prob:.2f}%")
-   
     progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
 
 
