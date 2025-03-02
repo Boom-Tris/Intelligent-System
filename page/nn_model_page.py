@@ -42,15 +42,19 @@ model = load_model(model_path, compile=False)
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': '%(id)s.%(ext)s',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
+       ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': '%(id)s.%(ext)s',
+        'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'headers': {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+    },
+}
+
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
             temp_file = f"{info_dict['id']}.mp3"
