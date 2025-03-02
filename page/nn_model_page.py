@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
-import yt_dlp as youtube_dl  # ใช้ yt-dlp แทน pytube
+import yt_dlp as youtube_dl
 from pydub import AudioSegment
 import tempfile
 
@@ -56,7 +56,7 @@ def download_youtube_audio(url):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': tempfile.mktemp(suffix='.webm')
+            'outtmpl': tempfile.mktemp(suffix='.mp3')
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -71,16 +71,6 @@ def download_youtube_audio(url):
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลดและแปลง YouTube: {str(e)}")
         return None
 
-# หน้าหลักของ Streamlit
-st.title("YouTube to MP3 Converter")
-
-youtube_url = st.text_input("กรุณากรอกลิงก์ YouTube:")
-if youtube_url:
-    st.write("กำลังดาวน์โหลดและแปลงไฟล์...")
-    mp3_path = download_youtube_audio(youtube_url)
-    if mp3_path:
-        st.success("แปลงไฟล์เสร็จสิ้น!")
-        st.audio(mp3_path)
 # ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
