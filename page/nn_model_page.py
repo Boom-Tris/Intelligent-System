@@ -36,32 +36,43 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
+# ฟังก์ชันแปลงไฟล์เสียงเป็น MP3
+def convert_to_mp3(input_path, output_path):
+    try:
+        # โหลดไฟล์
+        audio = AudioSegment.from_file(input_path)
+        # แปลงเป็น mp3 และบันทึกไฟล์
+        audio.export(output_path, format="mp3")
+        return output_path
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์เสียง: {str(e)}")
+        return None
 
-
-
-
-# ฟังก์ชันเพื่อดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3 โดยใช้ yt-dlp
+# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3 โดยใช้ yt-dlp
 def download_youtube_audio(url):
     try:
         ydl_opts = {
-            'format': 'bestaudio/best',  # เลือกไฟล์เสียงที่ดีที่สุด
+            'format': 'bestaudio/best',
             'postprocessors': [{
-                'key': 'AudioFileConverter',  # ใช้ 'AudioFileConverter' แทน 'FFmpegAudioConvertor'
-                'preferredcodec': 'mp3',  # แปลงเป็น MP3
-                'preferredquality': '192',  # คุณภาพเสียง 192 kbps
-            }],
-            'outtmpl': tempfile.mktemp(suffix='.mp3')  # ใช้ไฟล์ชั่วคราว
-        }
+            'key': 'FFmpegExtractAudio',  # เปลี่ยนเป็น FFmpegExtractAudio
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+    }],
+            'outtmpl': tempfile.mktemp(suffix='.webm')
+}
+            
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
-            return ydl.prepare_filename(info_dict)  # คืนชื่อไฟล์ MP3 ที่ดาวน์โหลด
+            download_path = ydl.prepare_filename(info_dict)
+            
+            # แปลงไฟล์จาก webm เป็น mp3
+            mp3_path = tempfile.mktemp(suffix='.mp3')
+            convert_to_mp3(download_path, mp3_path)
+            return mp3_path  # คืนไฟล์ MP3 ที่แปลงแล้ว
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลดและแปลง YouTube: {str(e)}")
         return None
-
-
-
 
 # ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
