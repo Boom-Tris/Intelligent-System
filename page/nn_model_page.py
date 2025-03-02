@@ -66,7 +66,7 @@ def convert_wav_to_mp3(wav_file, output_file):
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".webm")
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
         ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': temp_file.name,
