@@ -67,6 +67,12 @@ def download_youtube_audio(url):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
+        # ตรวจสอบว่าไฟล์ที่ดาวน์โหลดมามีขนาดใหญ่กว่า 0 ไบต์
+        if os.path.getsize(temp_file.name) == 0:
+            st.error("ไฟล์ที่ดาวน์โหลดมามีขนาดเป็น 0 ไบต์")
+            os.unlink(temp_file.name)
+            return None
+
         # แปลงเป็น WAV
         wav_path = f"{temp_file.name}.wav"
         if convert_mp4_to_wav(temp_file.name, wav_path):
