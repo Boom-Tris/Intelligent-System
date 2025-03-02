@@ -5,6 +5,12 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
+from pytube import YouTube
+from moviepy.editor import AudioFileClip
+
+import tempfile
+
+import pytube
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
@@ -33,12 +39,35 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
+# ฟังก์ชันเพื่อดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
+def download_youtube_audio(url):
+    try:
+        # ดึงข้อมูลจาก YouTube
+        yt = YouTube(url)
+        audio_stream = yt.streams.filter(only_audio=True).first()
+
+        # สร้างไฟล์ชั่วคราวในการจัดเก็บ
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as tmp_file:
+            audio_stream.download(output_path=tmp_file.name)
+            tmp_file.close()
+
+            # แปลงไฟล์เป็น MP3
+            audio_clip = AudioFileClip(tmp_file.name)
+            mp3_tempfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
+            audio_clip.write_audiofile(mp3_tempfile.name)
+            audio_clip.close()
+
+            return mp3_tempfile.name
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลดและแปลง YouTube: {str(e)}")
+        return None
+
 # ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
 
     # ให้ผู้ใช้เลือกประเภทของเสียงก่อน
-    audio_option = st.radio("เลือกประเภทเสียงที่ต้องการทดสอบ:", ["Speech", "Music", "เลือกไฟล์ของคุณเอง"], key="audio_option")
+    audio_option = st.radio("เลือกประเภทเสียงที่ต้องการทดสอบ:", ["Speech", "Music", "เลือกไฟล์ของคุณเอง", "ลิ้งค์ YouTube"], key="audio_option")
 
     # ถ้าเลือก Speech หรือ Music ให้ใช้ไฟล์ที่กำหนดไว้
     if audio_option == "Speech":
@@ -52,6 +81,12 @@ def display_nn_model():
         else:
             st.warning("กรุณาอัพโหลดไฟล์เสียง")  # แจ้งเตือนหากไม่มีการอัพโหลดไฟล์
             return  # หากไม่มีไฟล์ให้หยุดการทำงาน
+    elif audio_option == "ลิ้งค์ YouTube":
+        youtube_url = st.text_input("กรุณากรอกลิงก์ YouTube:")
+        if youtube_url:
+            audio_path = download_youtube_audio(youtube_url)
+            if not audio_path:
+                return  # หากไม่สามารถดาวน์โหลดหรือแปลงไฟล์ได้ ให้หยุดการทำงาน
 
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
