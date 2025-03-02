@@ -22,6 +22,6 @@
 }
 
 /* styles.css */
-div[role="progressbar"] > div {
-    background-color: orange !important;
+.progressbar{
+    background-color: orange ;
 }
