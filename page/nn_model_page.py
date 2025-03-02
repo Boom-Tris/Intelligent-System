@@ -8,7 +8,6 @@ from pathlib import Path
 import yt_dlp as youtube_dl
 from pydub import AudioSegment
 import tempfile
-import shutil
 import subprocess
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
@@ -47,26 +46,17 @@ def convert_mp4_to_wav(input_file, output_file):
     try:
         # ใช้ ffmpeg แปลงไฟล์ .mp4 เป็น .wav
         command = ["ffmpeg", "-v", "error", "-i", input_file, output_file]
-        subprocess.run(command, check=True)
+        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True
     except subprocess.CalledProcessError as e:
         st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์ .mp4 เป็น .wav: {str(e)}")
+        st.error(f"FFmpeg output: {e.stderr.decode('utf-8')}")
+        return False
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {str(e)}")
         return False
 
-# ฟังก์ชันแปลง .wav เป็น .mp3
-def convert_wav_to_mp3(wav_file, output_file):
-    try:
-        command = [
-            "ffmpeg",
-            "-i", wav_file,
-            "-acodec", "libmp3lame",
-            output_file
-        ]
-        subprocess.run(command, check=True)
-    except subprocess.CalledProcessError as e:
-        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์ .wav เป็น .mp3: {str(e)}")
-
-# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP4
+# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ WAV
 def download_youtube_audio(url):
     try:
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
@@ -76,14 +66,6 @@ def download_youtube_audio(url):
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
-
-        # ตรวจสอบว่าไฟล์สามารถแปลงได้ด้วย ffmpeg
-        try:
-            subprocess.run(['ffmpeg', '-v', 'error', '-i', temp_file.name], check=True)
-        except subprocess.CalledProcessError as e:
-            st.error(f"ไม่สามารถแปลงไฟล์ MP4 เป็นไฟล์ที่รองรับได้: {str(e)}")
-            os.unlink(temp_file.name)  # ลบไฟล์ชั่วคราว
-            return None
 
         # แปลงเป็น WAV
         wav_path = f"{temp_file.name}.wav"
@@ -97,23 +79,16 @@ def download_youtube_audio(url):
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
 
-# ฟังก์ชันแปลงไฟล์เป็น MP3
-def convert_to_mp3(input_path):
-    try:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        audio = AudioSegment.from_file(input_path)
-        audio.export(temp_file.name, format="mp3")
-        return temp_file.name
-    except Exception as e:
-        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์เสียง: {str(e)}")
-        return None
-
 # ฟังก์ชันหลัก
 def display_nn_model():
-    st.write("กำลังประมวลผล...กรุณารอ")
+    st.title("แอปวิเคราะห์เสียง Speech และ Music")
+    st.write("กรุณาเลือกประเภทเสียงที่ต้องการทดสอบ:")
 
-    # ให้ผู้ใช้เลือกประเภทของเสียงก่อน
-    audio_option = st.radio("เลือกประเภทเสียงที่ต้องการทดสอบ:", ["Speech", "Music", "เลือกไฟล์ของคุณเอง", "ลิ้งค์ YouTube"])
+    # ให้ผู้ใช้เลือกประเภทของเสียง
+    audio_option = st.radio(
+        "เลือกประเภทเสียง:",
+        ["Speech", "Music", "เลือกไฟล์ของคุณเอง", "ลิ้งค์ YouTube"]
+    )
 
     audio_path = None  # กำหนดค่าเริ่มต้นให้กับ audio_path
 
@@ -172,3 +147,4 @@ def display_nn_model():
         os.unlink(temp_file.name)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
+
