@@ -108,8 +108,7 @@ def display_nn_model():
         return  # หยุดถ้ามีข้อผิดพลาดในการโหลดไฟล์เสียง
 
     # ปรับขนาดของ Mel Spectrogram
-
-   # ปรับขนาดของ Mel Spectrogram
+ # ปรับขนาดของ Mel Spectrogram
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
@@ -117,8 +116,6 @@ def display_nn_model():
         mel_spec = mel_spec[:, :max_len]  # ครอปให้ได้ขนาดที่ต้องการ
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
-
-
 
     # ตรวจสอบขนาดของข้อมูลที่ป้อนเข้าโมเดล
     if mel_spec.shape != (128, 1320, 1):
@@ -138,9 +135,8 @@ def display_nn_model():
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการทำนายเสียง: {str(e)}")
 
-    
-     # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
+    # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
     if "temp_file" in locals() and os.path.exists(temp_file):
         os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
-        os.unlink(audio_path)  # เพิ่มการลบไฟล์ชั่วคราว
+        os.unlink(audio_path) https://youtu.be/RqC5OViuuL8?si=R9stMRXW0zAhOg32
