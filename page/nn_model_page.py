@@ -73,6 +73,12 @@ def download_youtube_audio(url):
             os.unlink(temp_file.name)
             return None
 
+        # ตรวจสอบว่าไฟล์ที่ดาวน์โหลดมาเป็นไฟล์ MP4 ที่ถูกต้อง
+        if not temp_file.name.endswith(".mp4"):
+            st.error("ไฟล์ที่ดาวน์โหลดมาไม่ใช่ไฟล์ MP4 ที่ถูกต้อง")
+            os.unlink(temp_file.name)
+            return None
+
         # แปลงเป็น WAV
         wav_path = f"{temp_file.name}.wav"
         if convert_mp4_to_wav(temp_file.name, wav_path):
