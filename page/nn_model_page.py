@@ -311,5 +311,5 @@ print("โมเดลถูกบันทึกเรียบร้อยแ�
  
         '''
     st.code(code, language='python')
-    st.markdown('<div class="highlight"><br>ตัวอย่างการทำงานของโมเดล</div>', unsafe_allow_html=True)
+    st.markdown('<div class="highlight"><br>ตัวอย่างการทำงานโมเดล</div>', unsafe_allow_html=True)
     nn_modele()
