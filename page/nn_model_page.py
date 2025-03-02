@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
-import yt_dlp as youtube_dl
+import yt_dlp as youtube_dl  # ใช้ yt-dlp แทน pytube
 from pydub import AudioSegment
 import tempfile
 
@@ -56,7 +56,7 @@ def download_youtube_audio(url):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': tempfile.mktemp(suffix='.mp3')
+            'outtmpl': tempfile.mktemp(suffix='.webm')
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -81,7 +81,6 @@ if youtube_url:
     if mp3_path:
         st.success("แปลงไฟล์เสร็จสิ้น!")
         st.audio(mp3_path)
-
 # ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
@@ -120,7 +119,7 @@ def display_nn_model():
     # ปรับขนาดของ Mel Spectrogram
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
-        mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1]))
+        mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
 
     elif mel_spec.shape[1] > max_len:
         mel_spec = mel_spec[:, :max_len]
@@ -136,5 +135,3 @@ def display_nn_model():
     progress_bar_speech = st.progress(int(speech_prob))  # ใช้ค่า speech_prob ตรงๆ
     st.write(f"Music Probability: {music_prob:.2f}%")
     progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
-
-# Run the app
