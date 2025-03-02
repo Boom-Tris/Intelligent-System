@@ -60,21 +60,26 @@ def convert_mp4_to_wav(input_file, output_file):
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-        yt = YouTube(url)
-        audio_stream = yt.streams.filter(only_audio=True).first()
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        
-        st.info("กำลังดาวน์โหลดไฟล์เสียงจาก YouTube...")
-        audio_stream.download(filename=temp_file.name)
-        st.success("ดาวน์โหลดไฟล์เสียงสำเร็จ")
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': '%(id)s.%(ext)s',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            temp_file = f"{info_dict['id']}.mp3"
 
         # ตรวจสอบว่าไฟล์ที่ดาวน์โหลดมามีขนาดใหญ่กว่า 0 ไบต์
-        if os.path.getsize(temp_file.name) == 0:
+        if os.path.getsize(temp_file) == 0:
             st.error("ไฟล์ที่ดาวน์โหลดมามีขนาดเป็น 0 ไบต์")
-            os.unlink(temp_file.name)
+            os.unlink(temp_file)
             return None
 
-        return temp_file.name
+        return temp_file
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
@@ -151,8 +156,8 @@ def display_nn_model():
     st.progress(int(music_prob))
 
     # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
-    if "temp_file" in locals() and os.path.exists(temp_file.name):
-        os.unlink(temp_file.name)
+    if "temp_file" in locals() and os.path.exists(temp_file):
+        os.unlink(temp_file)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
 
