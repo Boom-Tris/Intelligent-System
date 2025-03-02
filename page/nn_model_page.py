@@ -15,26 +15,28 @@ model_path = base_path / "model.h5"
 
 # ดาวน์โหลดไฟล์โมเดลจาก Google Drive หากยังไม่มีในระบบ
 if not model_path.exists():
-    # สร้างไดเรกทอรีถ้ายังไม่มี
     os.makedirs(base_path, exist_ok=True)
-    # ดาวน์โหลดไฟล์
     gdown.download(MODEL_URL, str(model_path), quiet=False)
 
 # กำหนดไฟล์เสียงที่ต้องการใช้
 file_path = Path(__file__).parent.parent / "data"
-
 file_speech = file_path / "Speech.wav"
 file_music = file_path / "COCKTAIL.wav"
 
 # ฟังก์ชันดึง features จากไฟล์เสียง
 def extract_features(audio_path):
-    y, sr = librosa.load(audio_path, sr=None)  # โหลดไฟล์เสียง
+    y, sr = librosa.load(audio_path, sr=16000)  # ลดตัวอย่างเสียงให้เร็วขึ้น
     mel_spec = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128, fmax=8000)  # คำนวณ Mel spectrogram
     log_mel_spec = librosa.power_to_db(mel_spec, ref=np.max)  # เปลี่ยนค่า Mel spectrogram เป็น dB
     return log_mel_spec
 
-# ฟังก์ชันดึง features จากไฟล์เสียง
+# โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
+model = load_model(model_path, compile=False)
+
+# ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
+    st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
+
     # เลือกไฟล์เสียงจาก Streamlit UI
     audio_option = st.radio("เลือกไฟล์เสียงที่ต้องการทดสอบ:", ["Speech", "Music"], key="audio_option")
 
@@ -44,12 +46,8 @@ def display_nn_model():
     else:
         audio_path = file_music
 
-    # โหลดโมเดล
-    model = load_model(model_path, compile=False)
-
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
-    print(f"Mel spectrogram shape: {mel_spec.shape}")  # เพิ่ม print เพื่อตรวจสอบขนาด Mel Spectrogram
 
     # ปรับขนาดของ Mel Spectrogram
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
@@ -65,4 +63,8 @@ def display_nn_model():
     speech_prob = prediction * 100
     music_prob = (1 - prediction) * 100
 
-    return speech_prob, music_prob
+    st.write(f"Speech Probability: {speech_prob:.2f}%")
+    st.write(f"Music Probability: {music_prob:.2f}%")
+
+# เรียกใช้งานฟังก์ชัน
+
