@@ -61,9 +61,9 @@ def display_nn_model():
     speech_prob = prediction * 100
     music_prob = (1 - prediction) * 100
 
-    # ตรวจสอบค่าไม่ให้เกินขอบเขต 0-100
-    speech_prob = max(0, min(100, speech_prob))
-    music_prob = max(0, min(100, music_prob))
+    # ตรวจสอบว่าเปอร์เซ็นต์ของ speech_prob และ music_prob อยู่ระหว่าง 0 และ 100 หรือไม่
+    speech_prob = np.clip(speech_prob, 0, 100)  # ค่าจะไม่ต่ำกว่า 0 และไม่เกิน 100
+    music_prob = np.clip(music_prob, 0, 100)  # ค่าจะไม่ต่ำกว่า 0 และไม่เกิน 100
 
     # แสดงผลเปอร์เซ็นต์ในรูปแบบหลอด
     st.progress(speech_prob / 100)  # แสดงเปอร์เซ็นต์ของ Speech
