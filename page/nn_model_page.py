@@ -138,5 +138,3 @@ def display_nn_model():
     progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
 
 # Run the app
-if __name__ == "__main__":
-    display_nn_model()
