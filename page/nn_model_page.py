@@ -42,27 +42,71 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
+# ฟังก์ชันแปลงไฟล์ .mp4 เป็น .wav
+def convert_mp4_to_wav(input_file, output_file):
+    try:
+        # ใช้ ffmpeg แปลงไฟล์ .mp4 เป็น .wav
+        command = ["ffmpeg", "-v", "error", "-i", input_file, output_file]
+        subprocess.run(command, check=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์ .mp4 เป็น .wav: {str(e)}")
+        return False
+
+# ฟังก์ชันแปลง .wav เป็น .mp3
+def convert_wav_to_mp3(wav_file, output_file):
+    try:
+        command = [
+            "ffmpeg",
+            "-i", wav_file,
+            "-acodec", "libmp3lame",
+            output_file
+        ]
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์ .wav เป็น .mp3: {str(e)}")
+
+# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP4
 def download_youtube_audio(url):
     try:
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")  # ตั้งชื่อไฟล์เป็น .mp3
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
         ydl_opts = {
-            'format': 'bestaudio/best',  # ดาวน์โหลดเฉพาะเสียง
-            'outtmpl': temp_file.name,   # กำหนดที่เก็บไฟล์
-            'postprocessors': [{
-                'key': 'FFmpegAudioConvertor',
-                'preferredcodec': 'mp3',   # แปลงไฟล์ให้เป็น mp3
-                'preferredquality': '192',  # กำหนดคุณภาพไฟล์
-            }],
+            'format': 'bestaudio/best',
+            'outtmpl': temp_file.name,
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        return temp_file.name  # คืนค่าพาธของไฟล์ mp3 ที่ดาวน์โหลดและแปลงแล้ว
+        # ตรวจสอบว่าไฟล์สามารถแปลงได้ด้วย ffmpeg
+        try:
+            subprocess.run(['ffmpeg', '-v', 'error', '-i', temp_file.name], check=True)
+        except subprocess.CalledProcessError as e:
+            st.error(f"ไม่สามารถแปลงไฟล์ MP4 เป็นไฟล์ที่รองรับได้: {str(e)}")
+            os.unlink(temp_file.name)  # ลบไฟล์ชั่วคราว
+            return None
+
+        # แปลงเป็น WAV
+        wav_path = f"{temp_file.name}.wav"
+        if convert_mp4_to_wav(temp_file.name, wav_path):
+            os.unlink(temp_file.name)  # ลบไฟล์ MP4 หลังแปลง
+            return wav_path
+        else:
+            os.unlink(temp_file.name)
+            return None
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
         return None
 
+# ฟังก์ชันแปลงไฟล์เป็น MP3
+def convert_to_mp3(input_path):
+    try:
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        audio = AudioSegment.from_file(input_path)
+        audio.export(temp_file.name, format="mp3")
+        return temp_file.name
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์เสียง: {str(e)}")
+        return None
 
 # ฟังก์ชันหลัก
 def display_nn_model():
@@ -78,9 +122,9 @@ def display_nn_model():
     elif audio_option == "Music":
         audio_path = str(file_music)
     elif audio_option == "เลือกไฟล์ของคุณเอง":
-        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3"])
+        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงของคุณเอง", type=["wav", "mp3", "mp4"])
         if uploaded_file is not None:
-            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
             temp_file.write(uploaded_file.read())
             temp_file.close()
             audio_path = temp_file.name
@@ -92,6 +136,14 @@ def display_nn_model():
     if not audio_path or not os.path.exists(audio_path):
         st.warning("กรุณาเลือกประเภทเสียงหรืออัพโหลดไฟล์เสียงให้ถูกต้อง")
         return
+
+    # ถ้าไฟล์เป็น .mp4 ให้แปลงเป็น .wav ก่อน
+    if audio_path.endswith(".mp4"):
+        wav_path = f"{audio_path}.wav"
+        if convert_mp4_to_wav(audio_path, wav_path):
+            audio_path = wav_path
+        else:
+            return
 
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
