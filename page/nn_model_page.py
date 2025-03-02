@@ -63,7 +63,10 @@ def download_youtube_audio(url):
         yt = YouTube(url)
         audio_stream = yt.streams.filter(only_audio=True).first()
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        
+        st.info("กำลังดาวน์โหลดไฟล์เสียงจาก YouTube...")
         audio_stream.download(filename=temp_file.name)
+        st.success("ดาวน์โหลดไฟล์เสียงสำเร็จ")
 
         # ตรวจสอบว่าไฟล์ที่ดาวน์โหลดมามีขนาดใหญ่กว่า 0 ไบต์
         if os.path.getsize(temp_file.name) == 0:
