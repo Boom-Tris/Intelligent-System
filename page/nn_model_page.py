@@ -72,3 +72,4 @@ def display_nn_model():
     st.progress(music_prob / 100)  # แสดงเปอร์เซ็นต์ของ Music
     st.write(f"Music Probability: {music_prob:.2f}%")
 
+
