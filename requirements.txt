@@ -8,5 +8,5 @@ gdown
 pytube
 pydub
 ffmpeg
-yt-dlp
+yt-dlp>=2025.01.31 
 gitpython
