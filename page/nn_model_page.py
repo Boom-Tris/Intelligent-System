@@ -5,7 +5,6 @@ from tensorflow.keras.models import load_model
 import gdown
 import os
 from pathlib import Path
-from pytube import YouTube
 import tempfile
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
@@ -39,30 +38,6 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-# ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
-def download_youtube_audio(url):
-    try:
-        # สร้างอ็อบเจ็กต์ YouTube
-        yt = YouTube(url)
-        
-        # ดาวน์โหลดไฟล์เสียงในรูปแบบ mp4 และแปลงเป็น mp3
-        audio_stream = yt.streams.filter(only_audio=True).first()
-        temp_file_path = audio_stream.download(filename="temp_audio.mp4")
-        
-        # เปลี่ยนไฟล์จาก mp4 เป็น mp3
-        mp3_file_path = temp_file_path.replace(".mp4", ".mp3")
-        os.rename(temp_file_path, mp3_file_path)
-
-        # ตรวจสอบขนาดของไฟล์
-        if os.path.getsize(mp3_file_path) == 0:
-            os.remove(mp3_file_path)
-            st.error("ไฟล์ที่ดาวน์โหลดมามีขนาดเป็น 0 ไบต์")
-            return None
-        
-        return mp3_file_path
-    except Exception as e:
-        st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลด YouTube: {str(e)}")
-        return None
 # ฟังก์ชันหลัก
 def display_nn_model():
     st.title("แอปวิเคราะห์เสียง Speech และ Music")
@@ -71,7 +46,7 @@ def display_nn_model():
     # ให้ผู้ใช้เลือกประเภทของเสียง
     audio_option = st.radio(
         "เลือกประเภทเสียง:",
-        ["Speech", "Music", "เลือกไฟล์ของคุณเอง", "ลิ้งค์ YouTube"]
+        ["Speech", "Music", "เลือกไฟล์ของคุณเอง"]
     )
 
     audio_path = None  # กำหนดค่าเริ่มต้นให้กับ audio_path
@@ -87,10 +62,6 @@ def display_nn_model():
             temp_file.write(uploaded_file.read())
             temp_file.close()
             audio_path = temp_file.name
-    elif audio_option == "ลิ้งค์ YouTube":
-        youtube_url = st.text_input("กรุณากรอกลิงก์ YouTube:")
-        if youtube_url:
-            audio_path = download_youtube_audio(youtube_url)
 
     if not audio_path or not os.path.exists(audio_path):
         st.warning("กรุณาเลือกประเภทเสียงหรืออัพโหลดไฟล์เสียงให้ถูกต้อง")
