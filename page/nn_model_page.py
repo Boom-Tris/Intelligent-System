@@ -2,11 +2,26 @@ import streamlit as st
 import librosa
 import numpy as np
 from tensorflow.keras.models import load_model
-from pathlib import Path
+import gdown
 import os
+from pathlib import Path
+
+# กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
+MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
+
+# กำหนดที่เก็บไฟล์โมเดล
+base_path = Path(__file__).parent.parent / "NL"
+model_path = base_path / "model.h5"
+
+# ดาวน์โหลดไฟล์โมเดลจาก Google Drive หากยังไม่มีในระบบ
+if not model_path.exists():
+    # สร้างไดเรกทอรีถ้ายังไม่มี
+    os.makedirs(base_path, exist_ok=True)
+    # ดาวน์โหลดไฟล์
+    gdown.download(MODEL_URL, str(model_path), quiet=False)
 
 # กำหนดไฟล์เสียงที่ต้องการใช้
-file_path =  Path(__file__).parent.parent / "data"
+file_path = Path(__file__).parent.parent / "data"
 
 file_speech = file_path / "Speech.wav"
 file_music = file_path / "COCKTAIL.wav"
@@ -30,8 +45,7 @@ def display_nn_model():
         audio_path = file_music
 
     # โหลดโมเดล
-    base_path = Path(__file__).parent.parent / "NL"
-    model = load_model(base_path / "model.h5", compile=False)
+    model = load_model(model_path, compile=False)
 
     # ดึง features จากไฟล์เสียง
     mel_spec = extract_features(audio_path)
