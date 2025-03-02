@@ -36,7 +36,6 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-# ฟังก์ชันแปลงไฟล์เสียงเป็น MP3
 def convert_to_mp3(input_path, output_path):
     try:
         audio = AudioSegment.from_file(input_path)
@@ -56,15 +55,24 @@ def download_youtube_audio(url):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': tempfile.mktemp(suffix='.webm')
+            'outtmpl': tempfile.NamedTemporaryFile(suffix='.webm', delete=False).name  # ใช้ NamedTemporaryFile
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
+            if not info_dict:
+                st.error("ไม่สามารถดาวน์โหลดไฟล์จาก YouTube ได้")
+                return None
+
             download_path = ydl.prepare_filename(info_dict)
             
+            # ตรวจสอบว่าไฟล์ถูกสร้างขึ้นจริง
+            if not os.path.exists(download_path):
+                st.error(f"ไฟล์ {download_path} ไม่พบในระบบ")
+                return None
+
             # แปลงไฟล์จาก webm เป็น mp3
-            mp3_path = tempfile.mktemp(suffix='.mp3')
+            mp3_path = tempfile.NamedTemporaryFile(suffix='.mp3', delete=False).name
             convert_to_mp3(download_path, mp3_path)
             return mp3_path
     except Exception as e:
@@ -81,7 +89,6 @@ if youtube_url:
     if mp3_path:
         st.success("แปลงไฟล์เสร็จสิ้น!")
         st.audio(mp3_path)
-# ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
 
