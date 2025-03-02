@@ -8,3 +8,4 @@ gdown
 pytube
 pydub
 ffmpeg
+yt-dlp
