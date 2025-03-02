@@ -42,19 +42,18 @@ model = load_model(model_path, compile=False)
 # ฟังก์ชันดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
 def download_youtube_audio(url):
     try:
-       ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': '%(id)s.%(ext)s',
-        'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
-    }],
-    'headers': {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-    },
-}
-
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': '%(id)s.%(ext)s',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+            },
+        }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
             temp_file = f"{info_dict['id']}.mp3"
@@ -112,7 +111,6 @@ def display_nn_model():
         return  # หยุดถ้ามีข้อผิดพลาดในการโหลดไฟล์เสียง
 
     # ปรับขนาดของ Mel Spectrogram
-  # ปรับขนาดของ Mel Spectrogram
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
@@ -120,7 +118,6 @@ def display_nn_model():
         mel_spec = mel_spec[:, :max_len]  # ครอปให้ได้ขนาดที่ต้องการ
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
- # เพิ่มมิติให้เหมาะกับโมเดล
 
     # ตรวจสอบขนาดของข้อมูลที่ป้อนเข้าโมเดล
     if mel_spec.shape != (128, 1320, 1):
