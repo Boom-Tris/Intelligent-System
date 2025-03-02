@@ -6,11 +6,8 @@ import gdown
 import os
 from pathlib import Path
 from pytube import YouTube
-from moviepy.editor import AudioFileClip
-
+from pydub import AudioSegment
 import tempfile
-
-import pytube
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
@@ -39,7 +36,7 @@ def extract_features(audio_path):
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
 
-# ฟังก์ชันเพื่อดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3
+# ฟังก์ชันเพื่อดาวน์โหลดและแปลง YouTube เป็นไฟล์ MP3 โดยใช้ pydub
 def download_youtube_audio(url):
     try:
         # ดึงข้อมูลจาก YouTube
@@ -51,10 +48,10 @@ def download_youtube_audio(url):
             audio_stream.download(output_path=tmp_file.name)
             tmp_file.close()
 
-            # แปลงไฟล์เป็น MP3
-            audio_clip = AudioFileClip(tmp_file.name)
+            # แปลงไฟล์เป็น MP3 โดยใช้ pydub
+            audio_clip = AudioSegment.from_file(tmp_file.name)
             mp3_tempfile = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
-            audio_clip.write_audiofile(mp3_tempfile.name)
+            audio_clip.export(mp3_tempfile.name, format="mp3")
             audio_clip.close()
 
             return mp3_tempfile.name
@@ -95,6 +92,7 @@ def display_nn_model():
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
+
     elif mel_spec.shape[1] > max_len:
         mel_spec = mel_spec[:, :max_len]
 
