@@ -43,13 +43,14 @@ def extract_features(audio_path):
 
 # โหลดโมเดลครั้งแรกและเก็บไว้ในตัวแปร
 model = load_model(model_path, compile=False)
-def convert_webm_to_wav(input_file, temp_wav_file):
-    command = [
-        "ffmpeg",
-        "-i", input_file,
-        temp_wav_file
-    ]
-    subprocess.run(command, check=True)
+def convert_webm_to_wav(input_file, output_file):
+    try:
+        audio = AudioSegment.from_file(input_file, format="webm")
+        audio.export(output_file, format="wav")
+        return True
+    except Exception as e:
+        st.error(f"เกิดข้อผิดพลาดในการแปลงไฟล์: {str(e)}")
+        return False
 
 def convert_wav_to_mp3(wav_file, output_file):
     command = [
