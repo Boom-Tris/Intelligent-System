@@ -35,8 +35,6 @@ model = load_model(model_path, compile=False)
 
 # ฟังก์ชันดึง features และทำนายเสียง
 def display_nn_model():
-    st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
-
     # เลือกไฟล์เสียงจาก Streamlit UI
     audio_option = st.radio("เลือกไฟล์เสียงที่ต้องการทดสอบ:", ["Speech", "Music"], key="audio_option")
 
@@ -59,7 +57,6 @@ def display_nn_model():
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
     # ทำนายเสียง
-    st.write("กำลังทำนาย...กรุณารอ")  # บอกสถานะการทำนาย
     prediction = model.predict(np.expand_dims(mel_spec, axis=0))[0][0]
     speech_prob = prediction * 100
     music_prob = (1 - prediction) * 100
@@ -76,4 +73,3 @@ def display_nn_model():
     st.write(f"Music Probability: {music_prob:.2f}%")
 
 # เรียกใช้งานฟังก์ชัน
-
