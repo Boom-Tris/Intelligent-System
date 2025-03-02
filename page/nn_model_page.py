@@ -46,7 +46,7 @@ model = load_model(model_path, compile=False)
 def convert_mp4_to_wav(input_file, output_file):
     try:
         # ใช้ ffmpeg แปลงไฟล์ .mp4 เป็น .wav
-        command = ["ffmpeg", "-i", input_file, output_file]
+        command = ["ffmpeg", "-v", "error", "-i", input_file, output_file]
         subprocess.run(command, check=True)
         return True
     except subprocess.CalledProcessError as e:
@@ -154,8 +154,6 @@ def display_nn_model():
     max_len = 1320  # ขนาดที่โมเดลคาดหวัง
     if mel_spec.shape[1] < max_len:
         mel_spec = np.pad(mel_spec, ((0, 0), (0, max_len - mel_spec.shape[1])))
-    elif mel_spec.shape[1] > max_len:
-        mel_spec = mel_spec[:, :max_len]
 
     mel_spec = mel_spec[..., np.newaxis]  # เพิ่มมิติให้เหมาะกับโมเดล
 
@@ -174,5 +172,3 @@ def display_nn_model():
         os.unlink(temp_file.name)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
-
-
