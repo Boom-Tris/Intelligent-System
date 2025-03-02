@@ -65,11 +65,10 @@ def display_nn_model():
     music_prob = (1 - prediction) * 100
 
     # แสดงผลเปอร์เซ็นต์ในรูปแบบหลอด
-    st.progress(speech_prob / 100)  # แสดงเปอร์เซ็นต์ของ Speech
+    st.progress(speech_prob)  # แสดงเปอร์เซ็นต์ของ Speech
     st.write(f"Speech Probability: {speech_prob:.2f}%")
 
-    st.progress(music_prob / 100)  # แสดงเปอร์เซ็นต์ของ Music
+    st.progress(music_prob)  # แสดงเปอร์เซ็นต์ของ Music
     st.write(f"Music Probability: {music_prob:.2f}%")
 
-# เรียกใช้งานฟังก์ชัน
 
