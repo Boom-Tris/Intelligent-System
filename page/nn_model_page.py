@@ -56,20 +56,22 @@ def download_youtube_audio(url):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'outtmpl': tempfile.mktemp(suffix='.webm')
+            'outtmpl': tempfile.mktemp(suffix='.webm')  # ใช้ mktemp เพื่อสร้างไฟล์ชั่วคราว
         }
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
             download_path = ydl.prepare_filename(info_dict)
             
-            # แปลงไฟล์จาก webm เป็น mp3
-            mp3_path = tempfile.mktemp(suffix='.mp3')
-            convert_to_mp3(download_path, mp3_path)
-            return mp3_path
+            # ใช้ NamedTemporaryFile สำหรับ mp3 เพื่อหลีกเลี่ยงปัญหาการเปิดไฟล์
+            with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as mp3_file:
+                mp3_path = mp3_file.name
+                convert_to_mp3(download_path, mp3_path)  # แปลงไฟล์จาก .webm เป็น .mp3
+                return mp3_path
     except Exception as e:
         st.error(f"เกิดข้อผิดพลาดในการดาวน์โหลดและแปลง YouTube: {str(e)}")
         return None
+
 
 # หน้าหลักของ Streamlit
 st.title("YouTube to MP3 Converter")
