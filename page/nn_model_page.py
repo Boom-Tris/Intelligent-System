@@ -37,18 +37,24 @@ model = load_model(model_path, compile=False)
 def display_nn_model():
     st.write("กำลังประมวลผล...กรุณารอ")  # แสดงข้อความระหว่างการประมวลผล
 
-    # เพิ่มตัวเลือกในการอัพโหลดไฟล์เสียง
-    uploaded_file = st.file_uploader("เลือกไฟล์เสียงที่ต้องการทดสอบ", type=["wav", "mp3"])
+    # ให้ผู้ใช้เลือกประเภทของเสียงก่อน
+    audio_option = st.radio("เลือกประเภทเสียงที่ต้องการทดสอบ:", ["Speech", "Music"], key="audio_option")
+
+    # ถ้าเลือก Speech หรือ Music ให้แสดงตัวเลือกในการอัพโหลดไฟล์
+    uploaded_file = None
+    if audio_option == "Speech":
+        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงประเภท Speech", type=["wav", "mp3"])
+    elif audio_option == "Music":
+        uploaded_file = st.file_uploader("อัพโหลดไฟล์เสียงประเภท Music", type=["wav", "mp3"])
 
     # ตรวจสอบว่าอัพโหลดไฟล์หรือยัง
     if uploaded_file is not None:
         audio_path = uploaded_file
     else:
-        # ถ้าไม่ได้อัพโหลดไฟล์, ใช้ไฟล์เริ่มต้น
-        audio_option = st.radio("เลือกไฟล์เสียงที่ต้องการทดสอบ:", ["Speech", "Music"], key="audio_option")
+        # ถ้าไม่ได้อัพโหลดไฟล์, ใช้ไฟล์เริ่มต้นตามประเภทที่เลือก
         if audio_option == "Speech":
             audio_path = file_speech
-        else:
+        elif audio_option == "Music":
             audio_path = file_music
 
     # ดึง features จากไฟล์เสียง
@@ -75,3 +81,4 @@ def display_nn_model():
     progress_bar_music = st.progress(int(music_prob))    # ใช้ค่า music_prob ตรงๆ
 
 # เรียกใช้งานฟังก์ชัน
+
