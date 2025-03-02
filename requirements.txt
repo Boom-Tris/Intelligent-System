@@ -9,3 +9,4 @@ pytube
 pydub
 ffmpeg-python
 yt-dlp
+gitpython
