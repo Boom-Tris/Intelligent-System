@@ -9,6 +9,7 @@ import yt_dlp as youtube_dl
 from pydub import AudioSegment
 import tempfile
 import shutil
+import subprocess
 
 # กำหนดลิงก์ดาวน์โหลดไฟล์จาก Google Drive
 MODEL_URL = 'https://drive.google.com/uc?id=1acfRIXq7Ldee-Z2gCLjqWMtaCWKxptne'
@@ -63,6 +64,14 @@ def download_youtube_audio(url):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
+        # ตรวจสอบไฟล์ที่ดาวน์โหลดมา (เช็คว่า ffmpeg สามารถเปิดได้หรือไม่)
+        try:
+            subprocess.run(['ffmpeg', '-v', 'error', '-i', temp_file.name], check=True)
+        except subprocess.CalledProcessError:
+            st.error(f"ไม่สามารถแปลงไฟล์ {temp_file.name} ได้ เนื่องจากเป็นไฟล์ที่ไม่รองรับ")
+            os.unlink(temp_file.name)
+            return None
+        
         # แปลงเป็น MP3
         mp3_path = convert_to_mp3(temp_file.name)
         os.unlink(temp_file.name)  # ลบไฟล์ webm หลังแปลงเสร็จ
@@ -129,4 +138,3 @@ def display_nn_model():
         os.unlink(temp_file.name)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
-
