@@ -50,6 +50,7 @@ def nn_modele():
     )
 
     audio_path = None  # กำหนดค่าเริ่มต้นให้กับ audio_path
+    temp_file = None  # เพิ่มตัวแปร temp_file ที่เป็น None เริ่มต้น
 
     if audio_option == "Speech":
         audio_path = str(file_speech)
@@ -100,8 +101,8 @@ def nn_modele():
         st.error(f"เกิดข้อผิดพลาดในการทำนายเสียง: {str(e)}")
 
     # ลบไฟล์ชั่วคราวหลังใช้งานเสร็จ
-    if "temp_file" in locals() and os.path.exists(temp_file):
-        os.unlink(temp_file)
+    if temp_file and os.path.exists(temp_file.name):
+        os.unlink(temp_file.name)
     if "audio_path" in locals() and audio_path.startswith("/tmp") and os.path.exists(audio_path):
         os.unlink(audio_path)
 
